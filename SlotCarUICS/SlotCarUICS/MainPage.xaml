@@ -1,0 +1,80 @@
+﻿<Page
+    x:Class="SlotCarUICS.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SlotCarUICS"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0" Name="tableData">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="1" FontSize="20">Sensor1</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="2">Sensor2</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="3">Sensor3</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="4">Sensor4</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="5">Sensor5</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="6">Sensor6</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="7">Sensor7</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="8">Sensor8</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="9">Sensor9</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="10">LapTime</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="11">Laps</TextBlock>
+
+            <TextBlock Grid.Row="1" Grid.Column="0">Racer1</TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="0">Racer2</TextBlock>
+        </Grid>
+        <ScrollViewer Name="debugOutputScrollViewer" BorderBrush="AliceBlue" BorderThickness="5" Grid.Row="0" Grid.RowSpan="4" Grid.Column="1"  Height="auto" Width="auto" VerticalScrollBarVisibility="Visible" VerticalScrollMode="Auto">
+            <TextBlock Name="debugOutputTextBlock" VerticalAlignment="Top" TextWrapping="Wrap" Width="auto" Height="auto" >
+                HelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHellooooooooooo
+            Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>
+            HelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHelloooooooooooHellooooooooooo
+            Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>Hellooooooooooo<LineBreak/>
+            </TextBlock>
+        </ScrollViewer>
+        <Border Grid.Row="1" Grid.Column="0" BorderBrush="AliceBlue" BorderThickness="0,5,0,0" Height="auto" Width="auto">
+            <TextBlock Name="statusTextBlock" HorizontalAlignment="Center" VerticalAlignment="Top" TextAlignment="Center" FontSize="72" Foreground="#FF0CFF00" >
+                Winner!
+            </TextBlock>
+        </Border>
+        <Border Grid.Row="2" Grid.Column="0" BorderBrush="AliceBlue" BorderThickness="0,5,0,0" Height="auto" Width="auto">
+            <TextBlock Name="recordLabelTextBlock" HorizontalAlignment="Center" VerticalAlignment="Top" TextAlignment="Center" FontSize="72" Foreground="#FF0DA7FF">
+                Best Time of the day:
+            </TextBlock>
+        </Border>
+        <TextBlock Name="recordTextBlock" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Top" TextAlignment="Center" FontSize="32" Foreground="#FF0DA7FF">
+            00:00:00:01
+        </TextBlock>
+        <Button Content="Button" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="145" Click="Button_Click" Grid.ColumnSpan="2"/>
+        <TextBox Name="colorTextBox" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Top" Width="145"></TextBox>
+    </Grid>
+</Page>

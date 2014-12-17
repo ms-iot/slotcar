@@ -233,22 +233,22 @@ void Adafruit_TCS34725::getRawData (uint16_t *r, uint16_t *g, uint16_t *b, uint1
   switch (_tcs34725IntegrationTime)
   {
     case TCS34725_INTEGRATIONTIME_2_4MS:
-      delay(3);
+      //delay(3);
       break;
     case TCS34725_INTEGRATIONTIME_24MS:
-      delay(24);
+      //delay(24);
       break;
     case TCS34725_INTEGRATIONTIME_50MS:
-      delay(50);
+      //delay(50);
       break;
     case TCS34725_INTEGRATIONTIME_101MS:
-      delay(101);
+      //delay(101);
       break;
     case TCS34725_INTEGRATIONTIME_154MS:
-      delay(154);
+      //delay(154);
       break;
     case TCS34725_INTEGRATIONTIME_700MS:
-      delay(700);
+      //delay(700);
       break;
   }
 }
@@ -306,9 +306,9 @@ uint16_t Adafruit_TCS34725::calculateLux(uint16_t r, uint16_t g, uint16_t b)
 }
 
 
-void Adafruit_TCS34725::setInterrupt(boolean i) {
+void Adafruit_TCS34725::setInterrupt(boolean flag) {
   uint8_t r = read8(TCS34725_ENABLE);
-  if (i) {
+  if (flag) {
     r |= TCS34725_ENABLE_AIEN;
   } else {
     r &= ~TCS34725_ENABLE_AIEN;

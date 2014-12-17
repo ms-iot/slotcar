@@ -1,12 +1,13 @@
 ﻿#include "Track.h"
 #include <cpprest/basic_types.h>
+#include <arduino.h>
 
 char* toHex(rgbc values);
 const char *st2s(std::stringstream* stream, char *result);
 
 const int minimumTrackDuration = 1500; //at least 1500ms between line crosses
 
-const int positionalSensorsPerTrack = 1;
+const int positionalSensorsPerTrack = 4;
 
 Track::Track()
 {
@@ -29,7 +30,7 @@ void Track::Initialize()
 	positionalSensors = vector<HallEffectSensor>(positionalSensorsPerTrack);
 	for (int i = 0; i < positionalSensorsPerTrack; i++)
 	{
-		positionalSensors[i] = HallEffectSensor(trackPinStart + i, false);
+		positionalSensors[i] = HallEffectSensor(trackPinStart + (trackId-1) * positionalSensorsPerTrack + i, false);
 		positionalSensors[i].Initialize();
 	}
 
@@ -38,7 +39,7 @@ void Track::Initialize()
 		return;
 	}
 
-	colorSensor = new Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_4X);
+	colorSensor = new Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_4X);
 
 	try
 	{
@@ -56,6 +57,12 @@ void Track::Initialize()
 	colorSensorFilter.significantVarianceInMs = 250;
 	colorSensorFilter.persistenceInMs = 3000;
 
+	//jim:TESTING COLOR SENSOR INTERRUPT
+	pinMode(2, INPUT);
+	digitalWrite(4, HIGH);
+	//attachInterrupt(0, &interruptedx, CHANGE); //interrupts not present here!
+	colorSensor->setIntLimits(31000, 32000);
+	colorSensor->setInterrupt(true);
 }
 
 void Track::Tick()
@@ -67,11 +74,11 @@ void Track::Tick()
 	{
 		if (positionalSensors[i].IsTriggered())
 		{
-			Log("(%d): PIN: %d:%d\n", ticks, i + trackPinStart, positionalSensors[i].value);
+			Log("(%d): PIN: %d:%d\n", ticks, positionalSensors[i].pin, positionalSensors[i].value);
 			raceController->Blip(Color(0, 255, 0));
 		}
 
-		//hack
+		//jim:TESTING ECHO OF SENSOR TO LED
 		if (trackId == 2)
 		{
 			//raceController->indicator.setDirectColor(Color(0, 255-(positionalSensors[i].value * 255), 0));

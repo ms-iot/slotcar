@@ -19,8 +19,8 @@ void HallEffectSensor::Initialize()
 bool HallEffectSensor::IsTriggered()
 {
 	value = isAnalog ? analogRead(pin) : digitalRead(pin);
-	bool triggered = isAnalog ? value < 1010 : value == 0;
-	bool triggeredForward = !isTriggered && triggered;
-	isTriggered = triggered;
-	return triggeredForward;
+	bool isTriggered = isAnalog ? value < 1010 : value == 0;
+	bool triggerResult = !wasTriggered && isTriggered;
+	wasTriggered = isTriggered;
+	return triggerResult;
 }

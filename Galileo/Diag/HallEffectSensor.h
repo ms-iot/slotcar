@@ -1,6 +1,6 @@
 ﻿class HallEffectSensor
 {
-	bool isTriggered = false;
+	bool wasTriggered = false;
 	bool isAnalog = false;
 
 public:

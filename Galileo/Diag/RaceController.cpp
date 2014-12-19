@@ -38,12 +38,12 @@ void RaceController::Initialize()
 	tracks = vector<Track>(trackCount);
 	for (int trackIndex = 0; trackIndex < trackCount; trackIndex++)
 	{
-		tracks[trackIndex] = Track(this, trackIndex+1, trackIndex == 1, 0);	//trackIndex == 1 means only turn on color sensor for track #2 - used for testing
+		tracks[trackIndex] = Track(this, trackIndex+1, trackIndex == 2, 0, 4);	//trackIndex == 1 means only turn on color sensor for track #2 - used for testing
 		tracks[trackIndex].Initialize();
 	}
 
 	//initialize components
-	indicator = ColorRGB(11, 10, 9);
+	indicator = ColorRGB(D9, D10, D11);
 
 	int multicastTTL = 2;
 	sock.setMulticastTTL(multicastTTL);

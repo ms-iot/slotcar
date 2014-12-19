@@ -20,6 +20,8 @@ class Track
 	bool trackReady = false;
 	vector<HallEffectSensor> positionalSensors;
 	int trackPinStart;
+	int lastReadRGB = 0;
+	int positionalSensorsPerTrack = 0;
 
 public:
 	int trackId;
@@ -27,7 +29,7 @@ public:
 	SensorFilter colorSensorFilter;
 
 	Track();
-	Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart);
+	Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack);
 	void Initialize();
 	void CheckColorSensor();
 	void StartRace(int ticks);

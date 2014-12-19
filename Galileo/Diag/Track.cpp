@@ -7,18 +7,26 @@ const char *st2s(std::stringstream* stream, char *result);
 
 const int minimumTrackDuration = 1500; //at least 1500ms between line crosses
 
-const int positionalSensorsPerTrack = 4;
+//const int positionalSensorsPerTrack = 6;
+const int minimumRGBWait = 24;
+
+const Color RED = Color(255, 0, 0);
+const Color BLACK = Color(0, 0, 0);
+const Color WHITE = Color(255, 255, 255);
+const Color YELLOW = Color(255, 255, 0);
+const Color GREEN = Color(0, 255, 0);
 
 Track::Track()
 {
 }
 
-Track::Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart)
+Track::Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack)
 {
 	this->raceController = raceController;
 	this->trackId = trackId;
 	this->usesColor = useColor;
 	this->trackPinStart = trackPinStart;
+	this->positionalSensorsPerTrack = positionalSensorsPerTrack;
 }
 
 void Track::Initialize()
@@ -56,13 +64,6 @@ void Track::Initialize()
 	colorSensorFilter.significantVarianceInValue = 8;
 	colorSensorFilter.significantVarianceInMs = 250;
 	colorSensorFilter.persistenceInMs = 3000;
-
-	//jim:TESTING COLOR SENSOR INTERRUPT
-	pinMode(2, INPUT);
-	digitalWrite(4, HIGH);
-	//attachInterrupt(0, &interruptedx, CHANGE); //interrupts not present here!
-	colorSensor->setIntLimits(31000, 32000);
-	colorSensor->setInterrupt(true);
 }
 
 void Track::Tick()
@@ -70,20 +71,36 @@ void Track::Tick()
 	int ticks = GetTickCount();
 	CheckColorSensor();
 
+	bool isAnythingTriggered = false;
+	bool isAnythingOnNow = false;
+
 	for (int i = 0; i < positionalSensorsPerTrack; i++)
 	{
+		int value = positionalSensors[i].value;
 		if (positionalSensors[i].IsTriggered())
 		{
-			Log("(%d): PIN: %d:%d\n", ticks, positionalSensors[i].pin, positionalSensors[i].value);
-			raceController->Blip(Color(0, 255, 0));
+			Log("(%d): PIN: %d:%d\n", ticks, positionalSensors[i].pin, value);
+			isAnythingTriggered = true;
 		}
 
+		isAnythingOnNow = isAnythingOnNow || value == 0;
+
+		//Log("%d,", value);
+
 		//jim:TESTING ECHO OF SENSOR TO LED
-		if (trackId == 2)
-		{
-			//raceController->indicator.setDirectColor(Color(0, 255-(positionalSensors[i].value * 255), 0));
-		}
+		//if (trackId == 2)
+		//{
+		//	//raceController->indicator.setDirectColor(Color(0, 255-(positionalSensors[i].value * 255), 0));
+		//}
 	}
+	//Log("\n");
+
+	/*if (isAnythingTriggered)
+	{
+		raceController->Blip(Color(0, 255, 0));
+	}*/
+
+	raceController->indicator.setDirectColor(isAnythingOnNow ? (trackId == 1 ? RED : GREEN) : BLACK);
 }
 
 rgbc Track::GetAdjustedRGBValue()
@@ -93,13 +110,18 @@ rgbc Track::GetAdjustedRGBValue()
 
 void Track::CheckColorSensor()
 {
-	if (!usesColor)
+	int ticks = GetTickCount();
+
+	if (!usesColor) //|| ticks-lastReadRGB < minimumRGBWait
 	{
 		return;
 	}
 
 	rgbc rgb = GetRGB();
-	int ticks = GetTickCount();
+	lastReadRGB = ticks;
+	int after = GetTickCount();
+	Log("sensor took %d\n", after - ticks);
+
 
 	if (colorSensorFilter.HasChanged(rgb))
 	{

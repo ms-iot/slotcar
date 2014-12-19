@@ -20,13 +20,14 @@ Track::Track()
 {
 }
 
-Track::Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack)
+Track::Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack, int colorSensorControlPin)
 {
 	this->raceController = raceController;
 	this->trackId = trackId;
 	this->usesColor = useColor;
 	this->trackPinStart = trackPinStart;
 	this->positionalSensorsPerTrack = positionalSensorsPerTrack;
+	this->colorSensorControlPin = colorSensorControlPin;
 }
 
 void Track::Initialize()
@@ -47,17 +48,13 @@ void Track::Initialize()
 		return;
 	}
 
-	colorSensor = new Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_4X);
+	pinMode(colorSensorControlPin, OUTPUT);
+	pinMode(colorSensorControlPin, HIGH);
 
-	try
-	{
-		colorSensor->begin();
-	}
-	catch (...)
-	{
-		Log("Color not connected/working");
-		exit(1);
-	}
+	colorSensor = new Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_4X);
+	colorSensor->setDelay(false);
+
+	pinMode(colorSensorControlPin, LOW);
 
 	//add sensor filtering (buffers or filters the values, preventing spikes or misreads)
 	colorSensorFilter = SensorFilter(FILTERTYPE_RGB);
@@ -117,11 +114,24 @@ void Track::CheckColorSensor()
 		return;
 	}
 
+	pinMode(colorSensorControlPin, HIGH);
+/*
+	try
+	{
+		colorSensor->begin();
+	}
+	catch (...)
+	{
+		Log("Color not connected/working");
+		exit(1);
+	}*/
+
 	rgbc rgb = GetRGB();
+	pinMode(colorSensorControlPin, LOW);
+
 	lastReadRGB = ticks;
 	int after = GetTickCount();
 	Log("sensor took %d\n", after - ticks);
-
 
 	if (colorSensorFilter.HasChanged(rgb))
 	{
@@ -201,6 +211,7 @@ void Track::CheckColorSensor()
 			}
 		}
 	}
+
 }
 
 void Track::StartRace(int ticks)

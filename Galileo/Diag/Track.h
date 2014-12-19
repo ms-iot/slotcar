@@ -29,7 +29,7 @@ public:
 	SensorFilter colorSensorFilter;
 
 	Track();
-	Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack);
+	Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack, int colorSensorControlPin);
 	void Initialize();
 	void CheckColorSensor();
 	void StartRace(int ticks);
@@ -37,4 +37,5 @@ public:
 	rgbc GetRGB();
 	void Tick();
 	rgbc GetAdjustedRGBValue();
+	int colorSensorControlPin;
 };

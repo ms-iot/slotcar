@@ -123,6 +123,16 @@ void Adafruit_TCS34725::enable(void)
 
 /**************************************************************************/
 /*!
+	Allows for delays (true by default). Turning this off skips delays and allows the user to perform other tasks during this time.
+*/
+/**************************************************************************/
+void Adafruit_TCS34725::setDelay(bool allowDelays)
+{
+	this->allowDelays = allowDelays;
+}
+
+/**************************************************************************/
+/*!
     Disables the device (putting it in lower power sleep mode)
 */
 /**************************************************************************/
@@ -233,23 +243,41 @@ void Adafruit_TCS34725::getRawData (uint16_t *r, uint16_t *g, uint16_t *b, uint1
   switch (_tcs34725IntegrationTime)
   {
     case TCS34725_INTEGRATIONTIME_2_4MS:
-      //delay(3);
+		if (allowDelays)
+		{
+			delay(3);
+		}
       break;
     case TCS34725_INTEGRATIONTIME_24MS:
-      //delay(24);
-      break;
+		if (allowDelays)
+		{
+			delay(24);
+		}
+		break;
     case TCS34725_INTEGRATIONTIME_50MS:
-      //delay(50);
-      break;
+		if (allowDelays)
+		{
+			delay(50);
+		}
+		break;
     case TCS34725_INTEGRATIONTIME_101MS:
-      //delay(101);
-      break;
+		if (allowDelays)
+		{
+			delay(101);
+		}
+		break;
     case TCS34725_INTEGRATIONTIME_154MS:
-      //delay(154);
-      break;
+		if (allowDelays)
+		{
+			delay(154);
+		}
+		break;
     case TCS34725_INTEGRATIONTIME_700MS:
-      //delay(700);
-      break;
+		if (allowDelays)
+		{
+			delay(700);
+		}
+		break;
   }
 }
 

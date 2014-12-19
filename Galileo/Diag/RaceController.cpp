@@ -38,7 +38,8 @@ void RaceController::Initialize()
 	tracks = vector<Track>(trackCount);
 	for (int trackIndex = 0; trackIndex < trackCount; trackIndex++)
 	{
-		tracks[trackIndex] = Track(this, trackIndex+1, trackIndex == 2, 0, 4);	//trackIndex == 1 means only turn on color sensor for track #2 - used for testing
+		tracks[trackIndex] = Track(this, trackIndex+1, trackIndex < 2, 0, 4,
+			trackIndex == 0 ? D8:D12);	//trackIndex == 1 means only turn on color sensor for track #2 - used for testing
 		tracks[trackIndex].Initialize();
 	}
 
@@ -100,7 +101,7 @@ bool RaceController::TrackLapChanged(Track* track)
 			trackStatusId = track->trackId;
 		}
 
-		if (carsFinished == 1) //trackCount - jim:fix when more than 1 (color-sensor) track exists!!!! 
+		if (carsFinished == trackCount) 
 		{
 			raceStatus = SHOW_WINNER;
 		}

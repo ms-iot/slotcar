@@ -4,7 +4,6 @@
 
 #include "RaceController.h"
 #include "arduino.h"
-#include "ColorRGB.h"
 #include "Adafruit_TCS34725.h"
 #include <cpprest/basic_types.h>
 
@@ -13,12 +12,6 @@ const char *st2s(std::stringstream* stream, char *result);
 
 const int ticksPerPreRaceStatus = 2000;
 const int ticksToAllowRaceStartFromGo = 5000;
-
-const Color RED = Color(255, 0, 0);
-const Color BLACK = Color(0, 0, 0);
-const Color WHITE = Color(255, 255, 255);
-const Color YELLOW = Color(255, 255, 0);
-const Color GREEN = Color(0, 255, 0);
 
 const char* raceStatusNames[] = { "Prep Ready to Start", "Ready to Start",
 	"Ready", "Set", "Go", "Racing", "Off-Track", "Final Lap", "Winner",
@@ -44,7 +37,7 @@ void RaceController::Initialize()
 	}
 
 	//initialize components
-	indicator = ColorRGB(D9, D10, D11);
+	indicator = ColorTrafficLight(D9, D10, D11); //or ColorRGB(D9, D10, D11);
 
 	int multicastTTL = 2;
 	sock.setMulticastTTL(multicastTTL);
@@ -74,9 +67,9 @@ bool RaceController::IsNewLapTime(int ticks)
 	return raceStatus >= RACING;
 }
 
-void RaceController::Blip()
+bool RaceController::IsInCountdown(bool includeGo)
 {
-	indicator.Blip(25);
+	return raceStatus >= READY && includeGo ? (raceStatus <= GO) : (raceStatus < GO);
 }
 
 void RaceController::Blip(Color color)
@@ -89,6 +82,7 @@ bool RaceController::TrackLapChanged(Track* track)
 	if (raceStatus == RACING && track->lap == raceLaps - 1)
 	{
 		this->raceStatus = FINAL_LAP;
+		SendRace(track->trackId, "finallap", track->trackId);
 	}
 
 	if (raceStatus == FINAL_LAP && track->lap == raceLaps)
@@ -99,9 +93,10 @@ bool RaceController::TrackLapChanged(Track* track)
 		if (carsFinished == 1)
 		{
 			trackStatusId = track->trackId;
+			SendRace(track->trackId, "winner", track->trackId);
 		}
 
-		if (carsFinished == trackCount) 
+		if (carsFinished > 0) 
 		{
 			raceStatus = SHOW_WINNER;
 		}
@@ -122,11 +117,6 @@ void RaceController::TrackReady(Track* track)
 		tracksReady = tracksReady + 1;
 		indicator.Blip(125, GREEN);
 	}
-}
-
-bool RaceController::IsInCountdown()
-{
-	return raceStatus >= READY && raceStatus < GO;
 }
 
 void RaceController::Disqualify(Track* track)
@@ -151,7 +141,7 @@ void RaceController::StatusCheck()
 {
 	int ticks = GetTickCount();
 	
-	if (raceStatus < RACING && ticks >= lastRaceStatusTicks + ticksPerPreRaceStatus)
+	if (raceStatus < RACING && (raceStatus == GO || ticks >= lastRaceStatusTicks + ticksPerPreRaceStatus))
 	{
 		raceStatus = static_cast<RaceStatus> (raceStatus + 1);
 
@@ -161,7 +151,24 @@ void RaceController::StatusCheck()
 		}
 	}
 
-	bool statusChanged = raceStatus != lastRaceStatus;
+	RaceStatus reportableRaceStatus = raceStatus;
+
+	bool anyCarsOffTrack = false;
+	for (int i = 0; i < trackCount; i++)
+	{
+		if (tracks[i].isOfftrack)
+		{
+			anyCarsOffTrack = true;
+			break;
+		}
+	}
+
+	if (reportableRaceStatus == RACING && anyCarsOffTrack)
+	{
+		reportableRaceStatus = OFF_TRACK;
+	}
+
+	bool statusChanged = reportableRaceStatus != lastRaceStatus;
 
 	if (!statusChanged)
 	{
@@ -169,20 +176,20 @@ void RaceController::StatusCheck()
 	}
 
 	lastRaceStatusTicks = ticks;
-	lastRaceStatus = raceStatus;
+	lastRaceStatus = reportableRaceStatus;
 
 	Log("Status=%s\n", (char*) raceStatusNames[raceStatus]);
 	SendRace(0, "status", (char*) raceStatusNames[raceStatus]);
 
 	// Set Indicator for racing status -----------------------------------------------------
 
-	switch (raceStatus)
+	switch (reportableRaceStatus)
 	{
 	case PREP_READY_TO_START: 
-		indicator.Flash(vector<Color>{ RED, BLACK }, 250);
+		indicator.Flash(vector<Color>{ WHITE, BLACK }, 250);
 		break;
 	case READY_TO_START:
-		indicator.Flash(vector<Color>{ RED, BLACK }, 250);
+		indicator.Flash(vector<Color>{ WHITE, BLACK }, 250);
 		break;
 	case READY:
 		indicator.SetColor(RED);
@@ -194,12 +201,13 @@ void RaceController::StatusCheck()
 		indicator.SetColor(GREEN);
 		break;
 	case RACING:
+		indicator.SetColor(GREEN);
 		break;
 	case OFF_TRACK:
 		indicator.Flash(vector<Color>{ YELLOW, BLACK }, 250);
 		break;
 	case FINAL_LAP:
-		indicator.Flash(vector<Color>{ WHITE, BLACK }, 250);
+		indicator.Flash(vector<Color>{ YELLOW, RED }, 250);
 		break;
 	case WINNER:
 		indicator.Flash(vector<Color>{ WHITE, BLACK }, 50);
@@ -227,6 +235,8 @@ void RaceController::ColorChanged(Track* track)
 	sprintf(message, "{ \"track\": %d, \"color\": \"%s\" }", track->trackId, hex);
 
 	SendRaw(message);
+	SendRace(track->trackId, "color", hex);
+
 	Log(message);
 	Log("\n");
 }

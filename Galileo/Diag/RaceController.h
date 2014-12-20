@@ -1,8 +1,9 @@
 ﻿#pragma once 
 
-#include "ColorRGB.h"
 #include "PracticalSocket.h"
 #include "Track.h"
+#include "ColorRGB.h"
+#include "ColorTrafficLight.h"
 
 class Track;
 
@@ -35,7 +36,8 @@ class RaceController
 	int tracksReady = 0;
 
 public:
-	ColorRGB indicator;
+	//ColorRGB indicator;
+	ColorTrafficLight indicator;
 
 	RaceStatus raceStatus;
 
@@ -51,12 +53,11 @@ public:
 	void Tick();
 	bool IsRacing();
 	bool IsNewLapTime(int ticks);
-	void Blip();
-	void Blip(Color color);
+	bool IsInCountdown(bool includeGo = false);
+	void Blip(Color color = BLACK);
 	bool TrackLapChanged(Track* track);
 	int GetRaceTime(int finishLine);
 	void TrackReady(Track* track);
-	bool IsInCountdown();
 	void Disqualify(Track* track);
 };
 

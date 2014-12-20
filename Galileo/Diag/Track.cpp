@@ -5,16 +5,11 @@
 char* toHex(rgbc values);
 const char *st2s(std::stringstream* stream, char *result);
 
-const int minimumTrackDuration = 1500; //at least 1500ms between line crosses
+const int minimumTrackDuration = 500; //at least 500ms between line crosses
+const int timeToOfftrack = 3000;
 
-//const int positionalSensorsPerTrack = 6;
 const int minimumRGBWait = 24;
-
-const Color RED = Color(255, 0, 0);
-const Color BLACK = Color(0, 0, 0);
-const Color WHITE = Color(255, 255, 255);
-const Color YELLOW = Color(255, 255, 0);
-const Color GREEN = Color(0, 255, 0);
+const bool debugging = false;
 
 Track::Track()
 {
@@ -51,14 +46,25 @@ void Track::Initialize()
 	pinMode(colorSensorControlPin, OUTPUT);
 	pinMode(colorSensorControlPin, HIGH);
 
-	colorSensor = new Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_4X);
-	colorSensor->setDelay(false);
+	try
+	{
+		delay(10);
+		colorSensor = new Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_4X);
+		delay(25);
+	}
+	catch (...)
+	{
+		Log("Color sensor on track %d not connected/working\n", trackId);
+		exit(1);
+	}
+
+	//colorSensor->setDelay(false);
 
 	pinMode(colorSensorControlPin, LOW);
 
 	//add sensor filtering (buffers or filters the values, preventing spikes or misreads)
 	colorSensorFilter = SensorFilter(FILTERTYPE_RGB);
-	colorSensorFilter.significantVarianceInValue = 8;
+	colorSensorFilter.significantVarianceInValue = 10;
 	colorSensorFilter.significantVarianceInMs = 250;
 	colorSensorFilter.persistenceInMs = 3000;
 }
@@ -70,6 +76,7 @@ void Track::Tick()
 
 	bool isAnythingTriggered = false;
 	bool isAnythingOnNow = false;
+	int positionTriggered = 0;
 
 	for (int i = 0; i < positionalSensorsPerTrack; i++)
 	{
@@ -78,26 +85,24 @@ void Track::Tick()
 		{
 			Log("(%d): PIN: %d:%d\n", ticks, positionalSensors[i].pin, value);
 			isAnythingTriggered = true;
+			positionTriggered = i;
 		}
 
 		isAnythingOnNow = isAnythingOnNow || value == 0;
-
-		//Log("%d,", value);
-
-		//jim:TESTING ECHO OF SENSOR TO LED
-		//if (trackId == 2)
-		//{
-		//	//raceController->indicator.setDirectColor(Color(0, 255-(positionalSensors[i].value * 255), 0));
-		//}
 	}
-	//Log("\n");
 
-	/*if (isAnythingTriggered)
+	if (isAnythingTriggered)
 	{
-		raceController->Blip(Color(0, 255, 0));
-	}*/
+		this->PositionChanged(positionTriggered);
+		ticksLastTrigged = ticks;
+	}
 
-	raceController->indicator.setDirectColor(isAnythingOnNow ? (trackId == 1 ? RED : GREEN) : BLACK);
+	if (debugging)
+	{
+		raceController->indicator.setDirectColor(isAnythingOnNow ? (trackId == 1 ? RED : GREEN) : BLACK);
+	}
+
+	isOfftrack = ticksLastTrigged > 0 && (ticks - ticksLastTrigged) > timeToOfftrack;
 }
 
 rgbc Track::GetAdjustedRGBValue()
@@ -105,90 +110,66 @@ rgbc Track::GetAdjustedRGBValue()
 	return colorSensorFilter.currentAdjustedRGBValues;
 }
 
+const bool INCLUDE_GO = true;
+
 void Track::CheckColorSensor()
 {
 	int ticks = GetTickCount();
 
-	if (!usesColor) //|| ticks-lastReadRGB < minimumRGBWait
+	if (!usesColor || raceController->IsRacing() || raceController->IsInCountdown(INCLUDE_GO)) //|| ticks-lastReadRGB < minimumRGBWait
 	{
 		return;
 	}
 
 	pinMode(colorSensorControlPin, HIGH);
-/*
+
 	try
 	{
 		colorSensor->begin();
 	}
 	catch (...)
 	{
-		Log("Color not connected/working");
+		Log("Color sensor on track %d not connected/working\n", trackId);
 		exit(1);
-	}*/
+	}
 
-	rgbc rgb = GetRGB();
+	delay(35); //CRITICAL delay required - otherwise writing exception occurs
+
+	bool worked = true;
+	rgbc rgb;
+	try
+	{
+		rgb = GetRGB();
+	}
+	catch (...)
+	{
+		worked = false;
+		//unknown issue
+		Log("GetRGB failed - ignoring");
+	}
+
 	pinMode(colorSensorControlPin, LOW);
 
-	lastReadRGB = ticks;
-	int after = GetTickCount();
-	Log("sensor took %d\n", after - ticks);
-
-	if (colorSensorFilter.HasChanged(rgb))
+	if (!worked)
 	{
-		//log any changes to raw port
+		return;
+	}
+
+	if (debugging)
+	{
 		char message[100];
 		char* hex = toHex(colorSensorFilter.currentAdjustedRGBValues);
 		sprintf(message, "{ \"track\": %d, \"color\": \"%s\" }", 2, hex);
 
-		raceController->SendRaw(message);
-
-		//Log("Color sensor 2:%s\n", toHex(rgb));
+		Log("Color sensor %d:%s\n", trackId, toHex(rgb));
 	}
+
+	lastReadRGB = ticks;
+	int after = GetTickCount();
 
 	if (colorSensorFilter.IsSignificant(rgb, ticks))
 	{
 		raceController->ColorChanged(this);
-
-		bool isRacing = raceController->IsRacing();
-
-		if (raceController->IsRacing() && hasStarted)
-		{
-			raceController->Blip();
-
-			if (ticks > lastPassedLine + minimumTrackDuration)
-			{
-				lap = lap + 1;
-				lastPassedLine = ticks;
-
-				Log("lap=%d", lap);
-
-				bool isFinishLine = raceController->TrackLapChanged(this);
-				if (isFinishLine) 
-				{
-					ticksFinishLine = ticks;
-					raceController->SendRace(trackId, "finished", raceController->GetRaceTime(ticksFinishLine));
-					StopRace();
-				}
-			}
-		}
-
-		bool isEmpty = colorSensorFilter.IsEmpty();
-
-		if (isEmpty)
-		{
-			if (isRacing)
-			{
-				if (!hasStarted)
-				{
-					hasStarted = true;
-				}
-			}
-			else if (raceController->IsInCountdown())
-			{
-				//disqualify!
-				raceController->Disqualify(this);
-			}
-		}
 	}
 
 	if (colorSensorFilter.IsPersistent(ticks))
@@ -211,18 +192,64 @@ void Track::CheckColorSensor()
 			}
 		}
 	}
+}
 
+void Track::PositionChanged(int position) {
+	raceController->Blip();
+	int ticks = GetTickCount();
+
+	if (position == 0)
+	{
+		if (raceController->IsInCountdown() && !hasStarted)
+		{
+			raceController->Disqualify(this);
+		}
+		else if (!hasStarted)
+		{
+			//ignore remaining
+		}
+		else if (!crossedStartingLine)
+		{
+			crossedStartingLine = true;
+			ticksCrossedStartingLine = ticks;
+			lastPassedLine = ticks;
+			lap = 0;
+		}
+		else if (ticks > lastPassedLine + minimumTrackDuration)
+		{
+			lastPassedLine = ticks;
+			lap = lap + 1;
+
+			Log("lap=%d", lap);
+
+			bool isFinishLine = raceController->TrackLapChanged(this);
+			if (isFinishLine) 
+			{
+				ticksFinishLine = ticks;
+				raceController->SendRace(trackId, "finished", raceController->GetRaceTime(ticksFinishLine));
+				StopRace();
+			}
+		}
+	}
+
+	if (raceController->IsRacing())
+	{
+		raceController->SendRace(trackId, "position", position);
+	}
 }
 
 void Track::StartRace(int ticks)
 {
-	lastPassedLine = ticks;
-	lap = 0;
+	hasStarted = true;
+	crossedStartingLine = false;
+	ticksLastTrigged = 0;
 }
 
 void Track::StopRace()
 {
 	hasStarted = false;
+	crossedStartingLine = false;
+	ticksLastTrigged = 0;
 }
 
 //Adafruit_TCS34725 (Color Sensor) specific methods

@@ -86,7 +86,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Adafruit_TCS34725.h" />
+    <ClInclude Include="ColorDisplay.h" />
     <ClInclude Include="ColorRGB.h" />
+    <ClInclude Include="ColorTrafficLight.h" />
     <ClInclude Include="HallEffectSensor.h" />
     <ClInclude Include="PracticalSocket.h" />
     <ClInclude Include="RaceController.h" />
@@ -98,7 +100,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Adafruit_TCS34725.cpp" />
+    <ClCompile Include="ColorDisplay.cpp" />
     <ClCompile Include="ColorRGB.cpp" />
+    <ClCompile Include="ColorTrafficLight.cpp" />
     <ClCompile Include="HallEffectSensor.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PracticalSocket.cpp" />

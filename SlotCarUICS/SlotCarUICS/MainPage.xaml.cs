@@ -39,7 +39,7 @@ namespace SlotCarUICS
 
         DatagramSocket socket = new DatagramSocket();
 
-        const int sensorDataCount = 9;
+        const int sensorDataCount = 4;
         const int numberOfPlayers = 2;
         private string recordLapTime = null;
 
@@ -163,7 +163,7 @@ namespace SlotCarUICS
                 tableData.Children.Add(b);
             }
 
-            PrintDebugString("Log Log Log");
+            PrintDebugString("");
             statusTextBlock.Text = "Runner-up";
             recordTextBlock.Text = "00:00:01";
 
@@ -189,6 +189,7 @@ namespace SlotCarUICS
                 {
                     color = colorTextBox.Text;
                 }
+
                 Int32 colorInt = Convert.ToInt32(color.Substring(1), 16);
                 byte[] colorBytes = BitConverter.GetBytes(colorInt);
                 if (BitConverter.IsLittleEndian)
@@ -222,7 +223,19 @@ namespace SlotCarUICS
                 {
                     this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                     {
-                        JsonObject root = JsonValue.Parse(message).GetObject();
+                        JsonObject root;
+
+                        try
+                        {
+                            root = JsonValue.Parse(message).GetObject();
+                        }
+                        catch (Exception)
+                        {
+                            //bad packet?
+                            PrintDebugString("-bad packet-");
+                            return;
+                        }
+                         
                         IJsonValue value;
                         int track = -1;
                         int position = -1;
@@ -241,6 +254,11 @@ namespace SlotCarUICS
                             color = value.GetString();
                         }
 
+                        if (root.TryGetValue("status", out value))
+                        {
+                            statusTextBlock.Text = value.GetString();
+                        }
+
                         if (track >= 0 && position >= 0)
                         {
                             int previous = racerData.ElementAt(track - 1).Data.ElementAt(position);
@@ -249,12 +267,23 @@ namespace SlotCarUICS
 
                         if (track >= 0 && color != string.Empty)
                         {
+                            var racer = racerData[track];
 
+                            Int32 colorInt = Convert.ToInt32(color.Substring(1), 16);
+                            byte[] colorBytes = BitConverter.GetBytes(colorInt);
+                            if (BitConverter.IsLittleEndian)
+                                Array.Reverse(colorBytes);
+                            racer.CarColor = new SolidColorBrush(Color.FromArgb(0xFF, Amplify(colorBytes[1]), Amplify(colorBytes[2]), Amplify(colorBytes[3])));
                         }
                     });
                     PrintDebugString(message);
                 };
             udp.Open();
+        }
+
+        static byte Amplify(byte color)
+        {
+            return (byte) Math.Min(255, color * 4);
         }
 
         class UdpSocket : IDisposable
@@ -285,7 +314,7 @@ namespace SlotCarUICS
             public async Task Open()
             {
                 var connectionProfile = NetworkInformation.GetInternetConnectionProfile();
-                this.socket.BindServiceNameAsync("12345", connectionProfile.NetworkAdapter);
+                this.socket.BindServiceNameAsync("12346", connectionProfile.NetworkAdapter);
                 //await this.socket.BindEndpointAsync(new HostName("10.125.149.59"), "12345");
                 this.socket.JoinMulticastGroup(new HostName("224.0.0.251"));
             }

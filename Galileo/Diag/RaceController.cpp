@@ -3,9 +3,11 @@
 //#define WIN32_LEAN_AND_MEAN
 
 #include "RaceController.h"
-#include "arduino.h"
 #include "Adafruit_TCS34725.h"
 #include <cpprest/basic_types.h>
+#include "CommUDP.h"
+#include "CommTCP.h"
+#include "NoIndicator.h"
 
 char* toHex(rgbc values);
 const char *st2s(std::stringstream* stream, char *result);
@@ -18,6 +20,8 @@ const char* raceStatusNames[] = { "Prep Ready to Start", "Ready to Start",
 	"Show Winner", "Waiting" };
 
 const int trackCount = 2;
+const int trackStart = 1;
+const bool useColor = true;
 const int raceLaps = 8;
 
 RaceController::RaceController()
@@ -27,20 +31,25 @@ RaceController::RaceController()
 void RaceController::Initialize()
 {
 	raceStatus = WAITING;
-	
+	indicator = new NoIndicator(); // new ColorRGB(D6, A0, A1); // ColorTrafficLight(D9, D10, D11); //or ColorRGB(D9, D10, D11);
+	indicator->SetColor(RED);
+
 	tracks = vector<Track>(trackCount);
 	for (int trackIndex = 0; trackIndex < trackCount; trackIndex++)
 	{
-		tracks[trackIndex] = Track(this, trackIndex+1, trackIndex < 2, 0, 4,
-			trackIndex == 0 ? D8:D12);	//trackIndex == 1 means only turn on color sensor for track #2 - used for testing
+		int trackId = trackIndex + trackStart;
+		tracks[trackIndex] = Track(this, trackId, useColor, 0, 4,
+			trackId == 1 ? D8 : D12);
 		tracks[trackIndex].Initialize();
 	}
 
 	//initialize components
-	indicator = ColorTrafficLight(D9, D10, D11); //or ColorRGB(D9, D10, D11);
+	reporter = new CommUDP("234.5.6.7", "10.125.255.255"); // new CommUDP("10.125.255.255"); //was 149.255
+	reporter->Initialize();
 
-	int multicastTTL = 2;
-	sock.setMulticastTTL(multicastTTL);
+	controller = new CommTCP("127.0.0.1");
+	controller->Initialize();
+	indicator->SetColor(GREEN);
 }
 
 void RaceController::Tick()
@@ -53,8 +62,15 @@ void RaceController::Tick()
 
 	StatusCheck();
 	
+	reporter->Tick();
+
+	if (reporter->lastBytesReceived > 0)
+	{
+		Log(reporter->recentInput);
+	}
+
 	//show status/indicators
-	indicator.Tick();
+	indicator->Tick();
 }
 
 bool RaceController::IsRacing()
@@ -74,7 +90,7 @@ bool RaceController::IsInCountdown(bool includeGo)
 
 void RaceController::Blip(Color color)
 {
-	indicator.Blip(25, color);
+	indicator->Blip(25, color);
 }
 
 bool RaceController::TrackLapChanged(Track* track)
@@ -115,7 +131,7 @@ void RaceController::TrackReady(Track* track)
 	if (tracksReady < trackCount)
 	{
 		tracksReady = tracksReady + 1;
-		indicator.Blip(125, GREEN);
+		indicator->Blip(125, GREEN);
 	}
 }
 
@@ -178,48 +194,48 @@ void RaceController::StatusCheck()
 	lastRaceStatusTicks = ticks;
 	lastRaceStatus = reportableRaceStatus;
 
-	Log("Status=%s\n", (char*) raceStatusNames[raceStatus]);
-	SendRace(0, "status", (char*) raceStatusNames[raceStatus]);
+	Log("Status=%s\n", const_cast<char*>(raceStatusNames[raceStatus]));
+	SendRace(0, "status", const_cast<char*>(raceStatusNames[raceStatus]));
 
 	// Set Indicator for racing status -----------------------------------------------------
 
 	switch (reportableRaceStatus)
 	{
 	case PREP_READY_TO_START: 
-		indicator.Flash(vector<Color>{ WHITE, BLACK }, 250);
+		indicator->Flash(vector<Color>{ WHITE, BLACK }, 250);
 		break;
 	case READY_TO_START:
-		indicator.Flash(vector<Color>{ WHITE, BLACK }, 250);
+		indicator->Flash(vector<Color>{ WHITE, BLACK }, 250);
 		break;
 	case READY:
-		indicator.SetColor(RED);
+		indicator->SetColor(RED);
 		break;
 	case SET: 
-		indicator.SetColor(YELLOW);
+		indicator->SetColor(YELLOW);
 		break;
 	case GO: 
-		indicator.SetColor(GREEN);
+		indicator->SetColor(GREEN);
 		break;
 	case RACING:
-		indicator.SetColor(GREEN);
+		indicator->SetColor(GREEN);
 		break;
 	case OFF_TRACK:
-		indicator.Flash(vector<Color>{ YELLOW, BLACK }, 250);
+		indicator->Flash(vector<Color>{ YELLOW, BLACK }, 250);
 		break;
 	case FINAL_LAP:
-		indicator.Flash(vector<Color>{ YELLOW, RED }, 250);
+		indicator->Flash(vector<Color>{ YELLOW, RED }, 250);
 		break;
 	case WINNER:
-		indicator.Flash(vector<Color>{ WHITE, BLACK }, 50);
+		indicator->Flash(vector<Color>{ WHITE, BLACK }, 50);
 		break;
 	case SHOW_WINNER:
-		indicator.Flash(vector<Color>{ GREEN, BLACK, (trackStatusId == 2 ? GREEN : BLACK), BLACK, BLACK, BLACK}, 125);
+		indicator->Flash(vector<Color>{ GREEN, BLACK, (trackStatusId == 2 ? GREEN : BLACK), BLACK, BLACK, BLACK}, 125);
 		break;
 	case WAITING:
-		indicator.SetColor(BLACK);
+		indicator->SetColor(BLACK);
 		break;
 	case DISQUALIFY:
-		indicator.Flash(vector<Color>{ RED, BLACK, (trackStatusId == 2 ? RED : BLACK), BLACK, BLACK, BLACK}, 125);
+		indicator->Flash(vector<Color>{ RED, BLACK, (trackStatusId == 2 ? RED : BLACK), BLACK, BLACK, BLACK}, 125);
 		break;
 	default: 
 		break;
@@ -244,7 +260,7 @@ void RaceController::ColorChanged(Track* track)
 //Communication / Logging
 int RaceController::SendRaw(char *message)
 {
-	return SendUDP(message, 12345);
+	return SendDirect(message, 12345);
 }
 
 int RaceController::SendRace(int track, char *key, char *value)
@@ -262,7 +278,7 @@ int RaceController::SendRace(int track, char *key, char *value)
 	char message[100];
 	sprintf(message, "{ %s\"%s\": \"%s\" }", trackMessage, key, value);
 
-	return SendUDP(message, 12346);
+	return SendDirect(message, 12346);
 }
 
 int RaceController::SendRace(int track, char* key, int value)
@@ -272,20 +288,9 @@ int RaceController::SendRace(int track, char* key, int value)
 	return SendRace(track, key, s);
 }
 
-int RaceController::SendUDP(char *message, unsigned short port)
+int RaceController::SendDirect(char *message, unsigned short port)
 {
-	string servAddress = "10.125.149.255";
-	unsigned char multicastTTL = 2;
-
-	try {
-		sock.sendTo(message, strlen(message), servAddress, port);
-	}
-	catch (SocketException &e) {
-		Log(e.what());
-		return 1;
-	}
-
-	return 0;
+	return reporter->Send(message, port);
 }
 
 const char *st2s(std::stringstream* stream, char *result) {

@@ -4,6 +4,7 @@
 #include "Track.h"
 #include "ColorRGB.h"
 #include "ColorTrafficLight.h"
+#include "Comm.h"
 
 class Track;
 
@@ -25,7 +26,9 @@ enum RaceStatus
 
 class RaceController
 {
-	UDPSocket sock;
+	Comm* controller;
+	Comm* reporter;
+	//UDPSocket sock;
 	bool isCurrentlyRacing;
 	RaceStatus lastRaceStatus;
 	int lastRaceStatusTicks = 0;
@@ -37,7 +40,7 @@ class RaceController
 
 public:
 	//ColorRGB indicator;
-	ColorTrafficLight indicator;
+	ColorDisplay* indicator;
 
 	RaceStatus raceStatus;
 
@@ -48,7 +51,7 @@ public:
 	int SendRaw(char* message);
 	int SendRace(int track, char* key, char* value);
 	int SendRace(int track, char* key, int value);
-	int SendUDP(char* message, unsigned short port);
+	int SendDirect(char* message, unsigned short port);
 	void StatusCheck();
 	void Tick();
 	bool IsRacing();

@@ -1,6 +1,4 @@
 ﻿#include "ColorDisplay.h"
-#include <arduino.h>
-#include "ColorRGB.h"
 
 ColorDisplay::ColorDisplay()
 {
@@ -10,6 +8,11 @@ ColorDisplay::~ColorDisplay()
 {
 }
 
+bool ColorDisplay::IsEqual(Color color1, Color color2)
+{
+	return color1.blue == color2.blue && color1.green == color2.green && color1.red == color2.red;
+}
+
 void ColorDisplay::Blip(int intervalMs)
 {
 	Blip(intervalMs, BLACK);
@@ -17,6 +20,10 @@ void ColorDisplay::Blip(int intervalMs)
 
 void ColorDisplay::Blip(int intervalMs, Color color)
 {
+	if (IsEqual(this->savedColor, color)) {
+		color = IsEqual(BLACK, color) ? GREEN : BLACK;
+	}
+
 	Color savedColor = this->savedColor;
 	setDirectColor(color);
 	this->savedColor = savedColor;

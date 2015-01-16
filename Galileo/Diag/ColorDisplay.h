@@ -39,7 +39,7 @@ public:
 	}
 
 	virtual ~ColorDisplay();
-
+	bool IsEqual(Color color1, Color color2);
 	ColorDisplay();
 	void Blip(int intervalMs);
 	void Blip(int intervalMs, Color color);

@@ -11,6 +11,9 @@ const int timeToOfftrack = 3000;
 const int minimumRGBWait = 24;
 const bool debugging = false;
 
+const bool usesShield = true;
+#define SHIELD_ADDR_ON_ON_OFF (0x73)
+
 Track::Track()
 {
 }
@@ -34,7 +37,14 @@ void Track::Initialize()
 	positionalSensors = vector<HallEffectSensor>(positionalSensorsPerTrack);
 	for (int i = 0; i < positionalSensorsPerTrack; i++)
 	{
-		positionalSensors[i] = HallEffectSensor(trackPinStart + (trackId-1) * positionalSensorsPerTrack + i, false);
+		//special D6->D8 logic in order to use D6(PWM) elsewhere
+		int pin = trackPinStart + (trackId - 1) * positionalSensorsPerTrack + i;
+		if (pin == D6)
+		{
+			pin = D8;
+		}
+
+		positionalSensors[i] = HallEffectSensor(pin, false);
 		positionalSensors[i].Initialize();
 	}
 
@@ -42,9 +52,6 @@ void Track::Initialize()
 	{
 		return;
 	}
-
-	pinMode(colorSensorControlPin, OUTPUT);
-	pinMode(colorSensorControlPin, HIGH);
 
 	try
 	{
@@ -59,8 +66,6 @@ void Track::Initialize()
 	}
 
 	//colorSensor->setDelay(false);
-
-	pinMode(colorSensorControlPin, LOW);
 
 	//add sensor filtering (buffers or filters the values, preventing spikes or misreads)
 	colorSensorFilter = SensorFilter(FILTERTYPE_RGB);
@@ -99,7 +104,7 @@ void Track::Tick()
 
 	if (debugging)
 	{
-		raceController->indicator.setDirectColor(isAnythingOnNow ? (trackId == 1 ? RED : GREEN) : BLACK);
+		raceController->indicator->setDirectColor(isAnythingOnNow ? (trackId == 1 ? RED : GREEN) : BLACK);
 	}
 
 	isOfftrack = ticksLastTrigged > 0 && (ticks - ticksLastTrigged) > timeToOfftrack;
@@ -121,7 +126,12 @@ void Track::CheckColorSensor()
 		return;
 	}
 
-	pinMode(colorSensorControlPin, HIGH);
+	if (usesShield) 
+	{
+		Wire.beginTransmission(SHIELD_ADDR_ON_ON_OFF);
+		Wire.write(1 << trackId - 1);
+		Wire.endTransmission();
+	}
 
 	try
 	{
@@ -147,8 +157,6 @@ void Track::CheckColorSensor()
 		//unknown issue
 		Log("GetRGB failed - ignoring");
 	}
-
-	pinMode(colorSensorControlPin, LOW);
 
 	if (!worked)
 	{
@@ -232,10 +240,7 @@ void Track::PositionChanged(int position) {
 		}
 	}
 
-	if (raceController->IsRacing())
-	{
-		raceController->SendRace(trackId, "position", position);
-	}
+	raceController->SendRace(trackId,const_cast<char*>(raceController->IsRacing() ? "position" : "pin"), position);
 }
 
 void Track::StartRace(int ticks)

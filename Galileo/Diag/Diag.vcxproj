@@ -85,7 +85,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\THIRD\pthreads\pthreads.2\pthread.h" />
     <ClInclude Include="Adafruit_TCS34725.h" />
     <ClInclude Include="ColorDisplay.h" />
     <ClInclude Include="ColorRGB.h" />
@@ -104,7 +103,6 @@
     <ClInclude Include="Track.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\THIRD\pthreads\pthreads.2\pthread.c" />
     <ClCompile Include="Adafruit_TCS34725.cpp" />
     <ClCompile Include="ColorDisplay.cpp" />
     <ClCompile Include="ColorRGB.cpp" />

@@ -33,8 +33,14 @@ public:
 		do_read();
 	}
 
+    virtual ~session()
+    {
+        Log("***%d Session ending\n", _pwm);
+    }
+
 private:
-	void do_read()
+    
+    void do_read()
 	{
 		ZeroMemory(_data, sizeof(_data));
 
@@ -42,13 +48,49 @@ private:
 		_socket.async_read_some(boost::asio::buffer(_data, max_length),
 			[this, self](boost::system::error_code ec, std::size_t length)
 		{
-			ptree pt;
-			std::istringstream is(_data);
-			read_json(is, pt);
-			std::string foo = pt.get<std::string>("foo");
+            if ((boost::asio::error::eof == ec) ||
+                (boost::asio::error::connection_reset == ec))
+            {
+                // handle the disconnect, motor to zero
+                analogWrite(_pwm, 0);
 
-			analogWrite(_pwm, 0);
-		});
+                // Return from here prevents another read, 
+                // which releases and cleans up this session
+                return;
+            }
+            else
+            {
+                try
+                {
+                    // Expecting JSON blobs. Read only a single line
+                    ptree pt;
+                    std::string line;
+                    std::istringstream is(_data);
+                    std::getline(is, line);
+
+                    std::stringstream liness(line);
+                    read_json(liness, pt);
+                    std::string spwm = pt.get<std::string>("PWM");
+
+                    uint16_t pwm = atof(spwm.c_str());
+
+                    Log("PWM: %d\n", pwm);
+
+                    pwm = 254;
+                    
+                    if (pwm > 0 && pwm < 255)
+                    {
+                        analogWrite(_pwm, pwm);
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    Log("Help! %s", e.what());
+                }
+
+                do_read();
+            }		
+        });
 	}
 
 	uint16_t _pwm;
@@ -90,13 +132,13 @@ private:
 	uint16_t _pwm;
 };
 
-int dir1PinA = A5;
-int dir2PinA = A4;
-int speedPinA = 9; // Needs to be a PWM pin to be able to control motor speed
+int dir1PinA = 2;// A5;
+int dir2PinA = 3;// A4;
 
-// Motor 2
-int dir1PinB = A3;
-int dir2PinB = A2;
+int dir1PinB = 4;// A3;
+int dir2PinB = 5;// A2;
+
+int speedPinA = 9; // Needs to be a PWM pin to be able to control motor speed
 int speedPinB = 10; // Needs to be a PWM pin to be able to control motor speed
 
 const uint16_t Game1Port = 25666;

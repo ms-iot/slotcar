@@ -72,11 +72,9 @@ private:
                     read_json(liness, pt);
                     std::string spwm = pt.get<std::string>("PWM");
 
-                    uint16_t pwm = atof(spwm.c_str());
+                    uint16_t pwm = atoi(spwm.c_str());
 
                     Log("PWM: %d\n", pwm);
-
-                    pwm = 254;
                     
                     if (pwm > 0 && pwm < 255)
                     {
@@ -132,11 +130,11 @@ private:
 	uint16_t _pwm;
 };
 
-int dir1PinA = 2;// A5;
-int dir2PinA = 3;// A4;
+int dir1PinA = 8;// A5;
+int dir2PinA = 11;// A4;
 
-int dir1PinB = 4;// A3;
-int dir2PinB = 5;// A2;
+int dir1PinB = 12;// A3;
+int dir2PinB = 13;// A2;
 
 int speedPinA = 9; // Needs to be a PWM pin to be able to control motor speed
 int speedPinB = 10; // Needs to be a PWM pin to be able to control motor speed
@@ -161,15 +159,13 @@ void CommTCP::Initialize()
 	pinMode(dir2PinB, OUTPUT);
 	pinMode(speedPinB, OUTPUT);
 
-	analogWrite(speedPinA, 0);
-	digitalWrite(dir1PinA, LOW);
-	digitalWrite(dir2PinA, HIGH);
+    analogWrite(speedPinA, 0);
+    digitalWrite(dir1PinA, HIGH);
+    digitalWrite(dir2PinA, LOW);
 
-	analogWrite(speedPinB, 0);
-	digitalWrite(dir1PinB, LOW);
-	digitalWrite(dir2PinB, HIGH);
-
-
+    analogWrite(speedPinB, 0);
+    digitalWrite(dir1PinB, LOW);
+    digitalWrite(dir2PinB, HIGH);
 }
 
 //

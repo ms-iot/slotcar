@@ -21,7 +21,7 @@ const char* raceStatusNames[] = { "Prep Ready to Start", "Ready to Start",
 
 const int trackCount = 2;
 const int trackStart = 1;
-const bool useColor = true;
+const bool useColor = false;
 const int raceLaps = 8;
 
 RaceController::RaceController()

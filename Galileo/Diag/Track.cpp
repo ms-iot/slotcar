@@ -39,10 +39,10 @@ void Track::Initialize()
 	{
 		//special D6->D8 logic in order to use D6(PWM) elsewhere
 		int pin = trackPinStart + (trackId - 1) * positionalSensorsPerTrack + i;
-		if (pin == D6)
+		/*if (pin == D6)
 		{
 			pin = D8;
-		}
+		}*/
 
 		positionalSensors[i] = HallEffectSensor(pin, false);
 		positionalSensors[i].Initialize();

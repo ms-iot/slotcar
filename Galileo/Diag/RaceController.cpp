@@ -1,13 +1,10 @@
-﻿//#include <cpprest/http_client.h>
-//#include <cpprest/filestream.h>
-//#define WIN32_LEAN_AND_MEAN
-
-#include "RaceController.h"
+﻿#include "RaceController.h"
 #include "Adafruit_TCS34725.h"
 #include <cpprest/basic_types.h>
 #include "CommUDP.h"
 #include "CommTCP.h"
 #include "NoIndicator.h"
+#include "ColorTrafficLight.h"
 
 char* toHex(rgbc values);
 const char *st2s(std::stringstream* stream, char *result);
@@ -19,11 +16,6 @@ const char* raceStatusNames[] = { "Prep Ready to Start", "Ready to Start",
 	"Ready", "Set", "Go", "Racing", "Off-Track", "Final Lap", "Winner",
 	"Show Winner", "Waiting" };
 
-const int trackCount = 2;
-const int trackStart = 1;
-const bool useColor = false;
-const int raceLaps = 8;
-
 RaceController::RaceController()
 {
 }
@@ -31,24 +23,28 @@ RaceController::RaceController()
 void RaceController::Initialize()
 {
 	raceStatus = WAITING;
-	indicator = new NoIndicator(); // new ColorRGB(D6, A0, A1); // ColorTrafficLight(D9, D10, D11); //or ColorRGB(D9, D10, D11);
+	
+	//indicator = new NoIndicator(); 
+	//indicator = new ColorRGB(D9, D10, D11); // RGB LED (if digital pins were available)
+	indicator = new NoIndicator(); 
+
 	indicator->SetColor(RED);
 
 	tracks = vector<Track>(trackCount);
 	for (int trackIndex = 0; trackIndex < trackCount; trackIndex++)
 	{
 		int trackId = trackIndex + trackStart;
-		tracks[trackIndex] = Track(this, trackId, useColor, 0, 4,
+		tracks[trackIndex] = Track(this, trackId, useColorSensors, 0, 4,
 			trackId == 1 ? D8 : D12);
 		tracks[trackIndex].Initialize();
 	}
 
-	//initialize components
-	reporter = new CommUDP("234.5.6.7", "10.125.255.255"); // new CommUDP("10.125.255.255"); //was 149.255
+	reporter = new CommUDP(multicastAddress, multicastMask);
 	reporter->Initialize();
 
 	controller = new CommTCP("127.0.0.1");
 	controller->Initialize();
+
 	indicator->SetColor(GREEN);
 }
 
@@ -60,8 +56,10 @@ void RaceController::Tick()
 		tracks[trackIndex].Tick();
 	}
 
+	//affect status
 	StatusCheck();
 	
+	//report status changes
 	reporter->Tick();
 
 	if (reporter->lastBytesReceived > 0)
@@ -73,12 +71,13 @@ void RaceController::Tick()
 	indicator->Tick();
 }
 
+// return if the status is any racing mode
 bool RaceController::IsRacing()
 {
 	return raceStatus >= RACING && raceStatus <= WINNER;
 }
 
-bool RaceController::IsNewLapTime(int ticks)
+bool RaceController::IsRacingOrPostRace(int ticks)
 {
 	return raceStatus >= RACING;
 }
@@ -88,11 +87,13 @@ bool RaceController::IsInCountdown(bool includeGo)
 	return raceStatus >= READY && includeGo ? (raceStatus <= GO) : (raceStatus < GO);
 }
 
+// blink the indicator
 void RaceController::Blip(Color color)
 {
 	indicator->Blip(25, color);
 }
 
+// a car has passed the 1st positional sensor on a track
 bool RaceController::TrackLapChanged(Track* track)
 {
 	if (raceStatus == RACING && track->lap == raceLaps - 1)
@@ -153,14 +154,18 @@ void RaceController::StartRace(int ticks)
 	carsFinished = 0;
 }
 
+// check and/or modify the status
 void RaceController::StatusCheck()
 {
 	int ticks = GetTickCount();
 	
+	//if we are not racing yet and either at 'GO!' status or waited too long
 	if (raceStatus < RACING && (raceStatus == GO || ticks >= lastRaceStatusTicks + ticksPerPreRaceStatus))
 	{
+		//progress the race status
 		raceStatus = static_cast<RaceStatus> (raceStatus + 1);
 
+		//if at 'racing'... restart the race
 		if (raceStatus == RACING)
 		{
 			StartRace(ticks);
@@ -242,6 +247,7 @@ void RaceController::StatusCheck()
 	}
 }
 
+// color sensor has a significant change for a persistent time
 void RaceController::ColorChanged(Track* track)
 {
 	char* hex = toHex(track->GetAdjustedRGBValue());
@@ -257,7 +263,8 @@ void RaceController::ColorChanged(Track* track)
 	Log("\n");
 }
 
-//Communication / Logging
+//Communication / Logging section
+
 int RaceController::SendRaw(char *message)
 {
 	return SendDirect(message, 12345);
@@ -312,7 +319,6 @@ char* toHex(rgbc values)
 	stream << (values.r<16 ? "0" : "") << std::hex << values.r;
 	stream << (values.g<16 ? "0" : "") << std::hex << values.g;
 	stream << (values.b<16 ? "0" : "") << std::hex << values.b;
-	//stream << (values.c<16 ? "0" : "") << std::hex << values.c;
 
 	char *result = new char[10];
 	st2s(&stream, result);

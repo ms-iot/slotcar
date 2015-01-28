@@ -1,31 +1,30 @@
 ﻿#pragma once
 
 #include "Adafruit_TCS34725.h"
-#include "SensorFilter.h"
-#include <memory>
-#include "RaceController.h"
 #include "HallEffectSensor.h"
+#include "RaceController.h"
+#include "SensorFilter.h"
 
 class RaceController;
 
 class Track
 {
 	RaceController* raceController;
-
 	Adafruit_TCS34725* colorSensor;
-	int lastPassedLine;
-	bool usesColor = false;
-	int ticksFinishLine = 0;
+
+	int colorSensorControlPin;
+	bool crossedStartingLine;
 	bool hasStarted = false;
-	bool trackReady = false;
-	vector<HallEffectSensor> positionalSensors;
-	int trackPinStart;
+	int lastPassedLine;
 	int lastReadRGB = 0;
+	std::vector<HallEffectSensor> positionalSensors;
 	int positionalSensorsPerTrack = 0;
 	int ticksCrossedStartingLine;
-	bool crossedStartingLine;
-	int colorSensorControlPin;
+	int ticksFinishLine = 0;
 	int ticksLastTrigged;
+	int trackPinStart;
+	bool trackReady = false;
+	bool usesColor = false;
 
 public:
 	int trackId;
@@ -35,12 +34,14 @@ public:
 
 	Track();
 	Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack, int colorSensorControlPin);
+
 	void Initialize();
+	void Tick();
+
 	void CheckColorSensor();
+	rgbc GetAdjustedRGBValue();
+	rgbc GetRGB();
 	void PositionChanged(int position);
 	void StartRace(int ticks);
 	void StopRace();
-	rgbc GetRGB();
-	void Tick();
-	rgbc GetAdjustedRGBValue();
 };

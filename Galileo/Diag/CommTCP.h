@@ -3,6 +3,7 @@
 #include "Comm.h"
 #include "arduino.h"
 
+
 class CommTCP : public Comm
 {
 public:
@@ -18,14 +19,14 @@ public:
 	// 6 -Motor 2 Right
 
 	// Motor 1
-	int dir1PinA = A5;
-	int dir2PinA = A4;
-	int speedPinA = 9; // Needs to be a PWM pin to be able to control motor speed
+	int dir1PinA = D8;
+	int dir2PinA = D11;
 
-	// Motor 2
-	int dir1PinB = A3;
-	int dir2PinB = A2;
-	int speedPinB = 10; // Needs to be a PWM pin to be able to control motor speed
+	int dir1PinB = D13;
+	int dir2PinB = D12;
+
+	int speedPinA = D10; // Needs to be a PWM pin to be able to control motor speed
+	int speedPinB = D9; // Needs to be a PWM pin to be able to control motor speed
 
 	CommTCP(std::string sourceAddress) : Comm("", sourceAddress) {};
 	void Initialize() override;

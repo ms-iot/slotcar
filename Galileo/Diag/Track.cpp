@@ -1,5 +1,4 @@
 ﻿#include "Track.h"
-#include <cpprest/basic_types.h>
 #include <arduino.h>
 
 char* toHex(rgbc values);
@@ -34,7 +33,7 @@ void Track::Initialize()
 	trackReady = false;
 
 	//add positionals
-	positionalSensors = vector<HallEffectSensor>(positionalSensorsPerTrack);
+	positionalSensors = std::vector<HallEffectSensor>(positionalSensorsPerTrack);
 	for (int i = 0; i < positionalSensorsPerTrack; i++)
 	{
 		//special D6->D8 logic in order to use D6(PWM) elsewhere
@@ -52,6 +51,8 @@ void Track::Initialize()
 	{
 		return;
 	}
+
+	Wire.begin();
 
 	try
 	{
@@ -143,7 +144,7 @@ void Track::CheckColorSensor()
 		exit(1);
 	}
 
-	delay(35); //CRITICAL delay required - otherwise writing exception occurs
+	delay(100); //CRITICAL delay required - otherwise writing exception occurs
 
 	bool worked = true;
 	rgbc rgb;
@@ -163,15 +164,6 @@ void Track::CheckColorSensor()
 		return;
 	}
 
-	if (debugging)
-	{
-		char message[100];
-		char* hex = toHex(colorSensorFilter.currentAdjustedRGBValues);
-		sprintf(message, "{ \"track\": %d, \"color\": \"%s\" }", 2, hex);
-
-		Log("Color sensor %d:%s\n", trackId, toHex(rgb));
-	}
-
 	lastReadRGB = ticks;
 	int after = GetTickCount();
 
@@ -185,7 +177,7 @@ void Track::CheckColorSensor()
 		if (!colorSensorFilter.IsEmpty())
 		{
 			// Race hasn't started yet
-			if (raceController->IsNewLapTime(ticks))
+			if (raceController->IsRacingOrPostRace(ticks))
 			{
 				// Car waiting to start
 				raceController->raceStatus = PREP_READY_TO_START;

@@ -33,4 +33,5 @@ void ColorTrafficLight::SetColor(byte red, byte green, byte blue) {
 	digitalWrite(redPin, (red == 255 && (blue == 255 || green == 0) ) ? ON : OFF);
 	digitalWrite(yellowPin, (red == 255 && green == 255) ? ON : OFF);
 	digitalWrite(greenPin, (green == 255 && (blue == 255 || red == 0)) ? ON : OFF);
+	
 }

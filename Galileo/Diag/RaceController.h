@@ -1,10 +1,10 @@
 ﻿#pragma once 
 
-#include "PracticalSocket.h"
-#include "Track.h"
+//#include "ColorTrafficLight.h"
+
 #include "ColorRGB.h"
-#include "ColorTrafficLight.h"
 #include "Comm.h"
+#include "Track.h"
 
 class Track;
 
@@ -26,42 +26,47 @@ enum RaceStatus
 
 class RaceController
 {
+	int carsFinished = 0;
 	Comm* controller;
-	Comm* reporter;
-	//UDPSocket sock;
 	bool isCurrentlyRacing;
 	RaceStatus lastRaceStatus;
 	int lastRaceStatusTicks = 0;
+	Comm* reporter;
 	int ticksRaceStarted;
-	vector<Track> tracks;
-	int carsFinished = 0;
-	int trackStatusId;
+	std::vector<Track> tracks;
 	int tracksReady = 0;
+	int trackStatusId;
 
 public:
-	//ColorRGB indicator;
-	ColorDisplay* indicator;
+	int trackCount = 2;
+	int trackStart = 1;
+	bool useColorSensors = false;
+	int raceLaps = 8;
+	std::string multicastAddress, multicastMask;
 
+	ColorDisplay* indicator;
 	RaceStatus raceStatus;
 
 	RaceController();
+
 	void Initialize();
-	void StartRace(int ticks);
+	void Tick();
+
+	void Blip(Color color = BLACK);
 	void ColorChanged(Track* track);
+	void Disqualify(Track* track);
+	int GetRaceTime(int finishLine);
+	bool IsInCountdown(bool includeGo = false);
+	bool IsRacingOrPostRace(int ticks);
+	bool IsRacing();
+	int SendDirect(char* message, unsigned short port);
 	int SendRaw(char* message);
 	int SendRace(int track, char* key, char* value);
 	int SendRace(int track, char* key, int value);
-	int SendDirect(char* message, unsigned short port);
+	void StartRace(int ticks);
 	void StatusCheck();
-	void Tick();
-	bool IsRacing();
-	bool IsNewLapTime(int ticks);
-	bool IsInCountdown(bool includeGo = false);
-	void Blip(Color color = BLACK);
 	bool TrackLapChanged(Track* track);
-	int GetRaceTime(int finishLine);
 	void TrackReady(Track* track);
-	void Disqualify(Track* track);
 };
 
 

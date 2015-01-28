@@ -130,26 +130,6 @@ private:
 	uint16_t _pwm;
 };
 
-int dir1PinA = 8;// A5;
-int dir2PinA = 11;// A4;
-
-int dir1PinB = 12;// A3;
-int dir2PinB = 13;// A2;
-
-int speedPinA = 9; // Needs to be a PWM pin to be able to control motor speed
-int speedPinB = 10; // Needs to be a PWM pin to be able to control motor speed
-
-const uint16_t Game1Port = 25666;
-const uint16_t Game2Port = 25667;
-
-boost::asio::io_service io_service;
-
-server game1(io_service, Game1Port, speedPinA);
-server game2(io_service, Game2Port, speedPinB);
-
-std::thread io_serviceThread([&](){ io_service.run(); });
-
-
 void CommTCP::Initialize()
 {
 	pinMode(dir1PinA, OUTPUT);
@@ -166,64 +146,19 @@ void CommTCP::Initialize()
     analogWrite(speedPinB, 0);
     digitalWrite(dir1PinB, LOW);
     digitalWrite(dir2PinB, HIGH);
+
+
 }
 
-//
-//int _tmain(int argc, _TCHAR* argv[])
-//{
-//	return RunArduinoSketch();
-//}
-//
-//Keyboard Controls:
-//
-// 1 -Motor 1 Left
-// 2 -Motor 1 Stop
-// 3 -Motor 1 Right
-//
-// 4 -Motor 2 Left
-// 5 -Motor 2 Stop
-// 6 -Motor 2 Right
+boost::asio::io_service io_service;
 
-//// Motor 1
-//int dir1PinA = 2;
-//int dir2PinA = 3;
-//int speedPinA = 9; // Needs to be a PWM pin to be able to control motor speed
-//
-//// Motor 2
-//int dir1PinB = 4;
-//int dir2PinB = 5;
-//int speedPinB = 10; // Needs to be a PWM pin to be able to control motor speed
-//
-//int ramp = 0;
-//bool up = true;
-//const uint16_t Game1Port = 25666;
-//const uint16_t Game2Port = 25666;
-//
-//boost::asio::io_service io_service;
-//std::thread io_serviceThread([](){ io_service.run(); });
-//
-//server game1(io_service, Game1Port, speedPinA);
-//server game2(io_service, Game1Port, speedPinB);
+const uint16_t Game1Port = 25666;
+const uint16_t Game2Port = 25667;
 
-//
-//void setup()
-//{
-//	pinMode(dir1PinA, OUTPUT);
-//	pinMode(dir2PinA, OUTPUT);
-//	pinMode(speedPinA, OUTPUT);
-//	pinMode(dir1PinB, OUTPUT);
-//	pinMode(dir2PinB, OUTPUT);
-//	pinMode(speedPinB, OUTPUT);
-//
-//	analogWrite(speedPinA, 0);
-//	digitalWrite(dir1PinA, LOW);
-//	digitalWrite(dir2PinA, HIGH);
-//
-//	analogWrite(speedPinB, 0);
-//	digitalWrite(dir1PinB, LOW);
-//	digitalWrite(dir2PinB, HIGH);
-//}
-//
-//void loop()
-//{
-//}
+int speedPinA = D10; // Needs to be a PWM pin to be able to control motor speed
+int speedPinB = D9; // Needs to be a PWM pin to be able to control motor speed
+
+server game1(io_service, Game1Port, speedPinA);
+server game2(io_service, Game2Port, speedPinB);
+
+std::thread io_serviceThread([&](){ io_service.run(); });

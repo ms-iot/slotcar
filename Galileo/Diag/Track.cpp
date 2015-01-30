@@ -121,13 +121,16 @@ void Track::CheckColorSensor()
 		return;
 	}
 
+	//Log("1");
 	if (usesShield) 
 	{
 		Wire.beginTransmission(SHIELD_ADDR_ON_ON_OFF);
 		Wire.write(1 << trackId - 1);
 		Wire.endTransmission();
+		delay(500);
 	}
 
+	//Log("2");
 	try
 	{
 		colorSensor->begin();
@@ -135,11 +138,13 @@ void Track::CheckColorSensor()
 	catch (...)
 	{
 		Log("Color sensor on track %d not connected/working\n", trackId);
-		exit(1);
+		//exit(1);
 	}
 
+	//Log("3");
 	delay(100); //CRITICAL delay required - otherwise writing exception occurs
 
+	//Log("4");
 	rgbc rgb;
 	try
 	{
@@ -150,6 +155,7 @@ void Track::CheckColorSensor()
 		Log("GetRGB failed - ignoring");
 		return;
 	}
+	//Log("5");
 
 	lastReadRGB = ticks;
 	int after = GetTickCount();
@@ -158,6 +164,8 @@ void Track::CheckColorSensor()
 	{
 		raceController->ColorChanged(this);
 	}
+
+	//Log("6");
 
 	if (colorSensorFilter.IsPersistent(ticks))
 	{
@@ -179,6 +187,8 @@ void Track::CheckColorSensor()
 			}
 		}
 	}
+
+	//Log("7");
 }
 
 // track recorded a new position sensed

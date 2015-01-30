@@ -10,10 +10,10 @@ public:
 	int lastBytesReceived;
 
 	Comm(std::string broadcastMask, std::string sourceAddress);
+
 	virtual void Initialize() {};
+	virtual void Tick() {};
 
 	virtual int Send(char* message, int channel) { return 0; };
 	virtual int Receive(unsigned short channel) { return 0; };
-
-	virtual void Tick() {};
 };

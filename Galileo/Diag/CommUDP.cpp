@@ -8,7 +8,10 @@ void CommUDP::Initialize()
 	sock.setMulticastTTL(multicastTTL);
 	
 	recentInput = new char[256];
-	//sock.joinGroup(broadcastMask);
+}
+
+void CommUDP::Tick()
+{
 }
 
 int CommUDP::Send(char *message, int channel){
@@ -31,9 +34,4 @@ int CommUDP::Receive(unsigned short channel)
 	recentInput[bytesReceived] = '\0';
 
 	return bytesReceived;
-}
-
-void CommUDP::Tick()
-{
-	//this->lastBytesReceived = this->Receive(1234);
 }

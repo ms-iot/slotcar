@@ -28,23 +28,24 @@ class ColorDisplay
 	Color savedColor;
 
 public:
-	void setDirectColor(Color color);
+	ColorDisplay();
+	virtual ~ColorDisplay();
 
+	void Tick();
+
+	void Blip(int intervalMs);
+	void Blip(int intervalMs, Color color);
+	void Clear();
 	virtual void Configure()
 	{
 	}
 
+	void Flash(std::vector<Color> colors, int intervalms);
+	bool IsEqual(Color color1, Color color2);
+	virtual void SetColor(Color color);
 	virtual void SetColor(byte red, byte green, byte blue)
 	{
 	}
 
-	virtual ~ColorDisplay();
-	bool IsEqual(Color color1, Color color2);
-	ColorDisplay();
-	void Blip(int intervalMs);
-	void Blip(int intervalMs, Color color);
-	void Clear();
-	void Flash(std::vector<Color> colors, int intervalms);
-	virtual void SetColor(Color color);
-	void Tick();
+	void setDirectColor(Color color);
 };

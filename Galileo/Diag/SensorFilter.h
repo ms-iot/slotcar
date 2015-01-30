@@ -15,12 +15,6 @@ class SensorFilter
 public:
 	void* source;
 	FilterType filterType;
-
-	explicit SensorFilter(FilterType filter_type)
-		: filterType(filter_type)
-	{
-	}
-
 	int significantVarianceInValue = 0;
 	int significantVarianceInMs = INT_MAX;
 	rgbc black = rgbc(0, 0, 0);
@@ -29,11 +23,16 @@ public:
 	int persistenceInMs, ticksSinceAdjustedRGBValue;
 
 	SensorFilter();
-	void flatten(rgbc* adjusted_rgb);
-	bool isSignificantChangeFrom(rgbc values);
-	bool IsSignificant(rgbc rgbvalues, int ticks);
+	explicit SensorFilter(FilterType filter_type)
+		: filterType(filter_type)
+	{
+	}
+
+	void Flatten(rgbc* adjusted_rgb);
 	bool HasChanged(rgbc rgbc);
-	bool IsPersistent(int ticks);
-	bool IsEqual(rgbc set1, rgbc set2);
 	bool IsEmpty();
+	bool IsEqual(rgbc set1, rgbc set2);
+	bool IsPersistent(int ticks);
+	bool IsSignificant(rgbc rgbvalues, int ticks);
+	bool IsSignificantChangeFrom(rgbc values);
 };

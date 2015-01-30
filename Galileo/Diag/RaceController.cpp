@@ -26,7 +26,7 @@ void RaceController::Initialize()
 	
 	//indicator = new NoIndicator(); 
 	//indicator = new ColorRGB(D9, D10, D11); // RGB LED (if digital pins were available)
-	indicator = new NoIndicator(); 
+	indicator = new ColorTrafficLight(A0, A1, A2); 
 
 	indicator->SetColor(RED);
 
@@ -34,8 +34,7 @@ void RaceController::Initialize()
 	for (int trackIndex = 0; trackIndex < trackCount; trackIndex++)
 	{
 		int trackId = trackIndex + trackStart;
-		tracks[trackIndex] = Track(this, trackId, useColorSensors, 0, 4,
-			trackId == 1 ? D8 : D12);
+		tracks[trackIndex] = Track(this, trackId, useColorSensors, 0, 4);
 		tracks[trackIndex].Initialize();
 	}
 
@@ -140,6 +139,7 @@ void RaceController::Disqualify(Track* track)
 {
 	trackStatusId = track->trackId;
 	raceStatus = DISQUALIFY;
+	Log("Disqualified");
 }
 
 void RaceController::StartRace(int ticks)
@@ -199,8 +199,8 @@ void RaceController::StatusCheck()
 	lastRaceStatusTicks = ticks;
 	lastRaceStatus = reportableRaceStatus;
 
-	Log("Status=%s\n", const_cast<char*>(raceStatusNames[raceStatus]));
-	SendRace(0, "status", const_cast<char*>(raceStatusNames[raceStatus]));
+	Log("Status=%s\n", const_cast<char*>(raceStatusNames[reportableRaceStatus]));
+	SendRace(0, "status", const_cast<char*>(raceStatusNames[reportableRaceStatus]));
 
 	// Set Indicator for racing status -----------------------------------------------------
 
@@ -290,9 +290,20 @@ int RaceController::SendRace(int track, char *key, char *value)
 
 int RaceController::SendRace(int track, char* key, int value)
 {
-	char s[20];
-	sprintf(s, "%d", value);
-	return SendRace(track, key, s);
+	char trackMessage[14];
+	if (track > 0)
+	{
+		sprintf(trackMessage, "\"track\": %d, ", track);
+	}
+	else
+	{
+		trackMessage[0] = 0;
+	}
+
+	char message[100];
+	sprintf(message, "{ %s\"%s\": %d }", trackMessage, key, value);
+
+	return SendDirect(message, 12346);
 }
 
 int RaceController::SendDirect(char *message, unsigned short port)

@@ -1,6 +1,6 @@
-﻿
-#include "SensorFilter.h"
+﻿// Filter, aggregator for sensors (used for rgb (color sensor)), triggering on persisten changes.
 
+#include "SensorFilter.h"
 #include <windows.h>
 
 const rgbc ADJUSTED_BLACK = rgbc(0, 0, 0);
@@ -26,7 +26,7 @@ rgbc SensorFilter::subtract(rgbc fromrgb, rgbc torgb) {
 	return result;
 }
 
-void SensorFilter::flatten(rgbc* values)
+void SensorFilter::Flatten(rgbc* values)
 {
 	if (values->r > 255) {
 		values->r = 0;
@@ -50,7 +50,7 @@ void SensorFilter::flatten(rgbc* values)
 	values->c = max(values->c, 0);
 }
 
-bool SensorFilter::isSignificantChangeFrom(rgbc adjustedValues)
+bool SensorFilter::IsSignificantChangeFrom(rgbc adjustedValues)
 {
 	if (filterType == FILTERTYPE_RGB)
 	{
@@ -68,9 +68,9 @@ bool SensorFilter::IsSignificant(rgbc rgbvalues, int ticks)
 	if (filterType == FILTERTYPE_RGB)
 	{
 		rgbc adjustedRGB = subtract(rgbvalues, black);
-		flatten(&adjustedRGB);
+		Flatten(&adjustedRGB);
 
-		isSignificant = isSignificantChangeFrom(adjustedRGB);
+		isSignificant = IsSignificantChangeFrom(adjustedRGB);
 		
 		this->currentAdjustedRGBValues = adjustedRGB;
 		this->currentRGBValues = rgbvalues;
@@ -117,5 +117,5 @@ bool SensorFilter::IsEqual(rgbc set1, rgbc set2)
 
 bool SensorFilter::IsEmpty()
 {
-	return !isBlackSet || !isSignificantChangeFrom(ADJUSTED_BLACK);
+	return !isBlackSet || !IsSignificantChangeFrom(ADJUSTED_BLACK);
 }

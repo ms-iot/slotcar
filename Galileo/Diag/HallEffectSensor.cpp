@@ -1,4 +1,6 @@
-﻿#include "HallEffectSensor.h"
+﻿// Manages hall-effect sensor (IsTriggered)
+
+#include "HallEffectSensor.h"
 #include "arduino.h"
 
 HallEffectSensor::HallEffectSensor()

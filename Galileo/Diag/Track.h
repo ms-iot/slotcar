@@ -33,7 +33,7 @@ public:
 	SensorFilter colorSensorFilter;
 
 	Track();
-	Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack, int colorSensorControlPin);
+	Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack);
 
 	void Initialize();
 	void Tick();

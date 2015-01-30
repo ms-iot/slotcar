@@ -40,7 +40,7 @@ class RaceController
 public:
 	int trackCount = 2;
 	int trackStart = 1;
-	bool useColorSensors = false;
+	bool useColorSensors = true;
 	int raceLaps = 8;
 	std::string multicastAddress, multicastMask;
 

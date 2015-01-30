@@ -5,19 +5,19 @@ char* toHex(rgbc values);
 const char *st2s(std::stringstream* stream, char *result);
 
 const int minimumTrackDuration = 500; //at least 500ms between line crosses
-const int timeToOfftrack = 3000;
+const int timeToOfftrack = 3000;	  //time between positional sensors before a car is marked as 'off-track' (caution)
 
 const int minimumRGBWait = 24;
 const bool debugging = false;
 
-const bool usesShield = true;
+const bool usesShield = true;	      //uses i2c multiplexor shield
 #define SHIELD_ADDR_ON_ON_OFF (0x73)
 
 Track::Track()
 {
 }
 
-Track::Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack, int colorSensorControlPin)
+Track::Track(RaceController* raceController, int trackId, bool useColor, int trackPinStart, int positionalSensorsPerTrack)
 {
 	this->raceController = raceController;
 	this->trackId = trackId;
@@ -32,16 +32,11 @@ void Track::Initialize()
 	StopRace();
 	trackReady = false;
 
-	//add positionals
+	//add positional sensors
 	positionalSensors = std::vector<HallEffectSensor>(positionalSensorsPerTrack);
 	for (int i = 0; i < positionalSensorsPerTrack; i++)
 	{
-		//special D6->D8 logic in order to use D6(PWM) elsewhere
 		int pin = trackPinStart + (trackId - 1) * positionalSensorsPerTrack + i;
-		/*if (pin == D6)
-		{
-			pin = D8;
-		}*/
 
 		positionalSensors[i] = HallEffectSensor(pin, false);
 		positionalSensors[i].Initialize();
@@ -65,8 +60,6 @@ void Track::Initialize()
 		Log("Color sensor on track %d not connected/working\n", trackId);
 		exit(1);
 	}
-
-	//colorSensor->setDelay(false);
 
 	//add sensor filtering (buffers or filters the values, preventing spikes or misreads)
 	colorSensorFilter = SensorFilter(FILTERTYPE_RGB);
@@ -122,7 +115,8 @@ void Track::CheckColorSensor()
 {
 	int ticks = GetTickCount();
 
-	if (!usesColor || raceController->IsRacing() || raceController->IsInCountdown(INCLUDE_GO)) //|| ticks-lastReadRGB < minimumRGBWait
+	//color sensor takes too much time away from sensing positional sensors, at least on a single thread - if racing (or not using), ignore color sensors.
+	if (!usesColor || raceController->IsRacing() || raceController->IsInCountdown(INCLUDE_GO))
 	{
 		return;
 	}
@@ -146,7 +140,6 @@ void Track::CheckColorSensor()
 
 	delay(100); //CRITICAL delay required - otherwise writing exception occurs
 
-	bool worked = true;
 	rgbc rgb;
 	try
 	{
@@ -154,13 +147,7 @@ void Track::CheckColorSensor()
 	}
 	catch (...)
 	{
-		worked = false;
-		//unknown issue
 		Log("GetRGB failed - ignoring");
-	}
-
-	if (!worked)
-	{
 		return;
 	}
 
@@ -194,14 +181,17 @@ void Track::CheckColorSensor()
 	}
 }
 
+// track recorded a new position sensed
 void Track::PositionChanged(int position) {
 	raceController->Blip();
 	int ticks = GetTickCount();
 
+	//if at beginning of track (1st sensor)
 	if (position == 0)
 	{
 		if (raceController->IsInCountdown() && !hasStarted)
 		{
+			//oops, still counting down!
 			raceController->Disqualify(this);
 		}
 		else if (!hasStarted)
@@ -232,7 +222,7 @@ void Track::PositionChanged(int position) {
 		}
 	}
 
-	raceController->SendRace(trackId,const_cast<char*>(raceController->IsRacing() ? "position" : "pin"), position);
+	raceController->SendRace(trackId,const_cast<char*>(raceController->IsRacing() ? "position" : "position"), position);
 }
 
 void Track::StartRace(int ticks)

@@ -32,7 +32,7 @@ namespace SlotCarUICS
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        string[] columnHeader = { "", "Sensor1", "Sensor2", "Sensor3", "Sensor4", "Sensor5", "Sensor6", "Sensor7", "Sensor8", "Sensor9", "LapTime", "Laps" };
+        string[] columnHeader = { "", "Sensor1", "Sensor2", "Sensor3", "Sensor4", "LapTime", "Laps" };
         string[] rowHeader = { "Racer1", "Racer2" };
 
         List<RacerDataModel> racerData = new List<RacerDataModel>();
@@ -137,7 +137,7 @@ namespace SlotCarUICS
 
                 b.Child = t;
                 Grid.SetRow(b, i + 1);
-                Grid.SetColumn(b, 10);
+                Grid.SetColumn(b, columnHeader.Length-2);
                 tableData.Children.Add(b);
             }
 
@@ -159,7 +159,7 @@ namespace SlotCarUICS
 
                 b.Child = t;
                 Grid.SetRow(b, i + 1);
-                Grid.SetColumn(b, 11);
+                Grid.SetColumn(b, columnHeader.Length - 1);
                 tableData.Children.Add(b);
             }
 
@@ -259,15 +259,21 @@ namespace SlotCarUICS
                             statusTextBlock.Text = value.GetString();
                         }
 
-                        if (track >= 0 && position >= 0)
+                        if (track > 0 && position >= 0)
                         {
-                            int previous = racerData.ElementAt(track - 1).Data.ElementAt(position);
-                            racerData.ElementAt(track - 1).setSensorPoint(position, ++previous);
+                            var racer = racerData[track-1];
+                            int previous = racer.Data.ElementAt(position);
+                            racer.setSensorPoint(position, ++previous);
+                            if (position == 0)
+                            {
+                                racer.Laps = ++racer.Laps;
+                                racer.LastLapTriggerTime = DateTime.Now;
+                            }
                         }
 
                         if (track >= 0 && color != string.Empty)
                         {
-                            var racer = racerData[track];
+                            var racer = racerData[track-1];
 
                             Int32 colorInt = Convert.ToInt32(color.Substring(1), 16);
                             byte[] colorBytes = BitConverter.GetBytes(colorInt);
@@ -316,7 +322,7 @@ namespace SlotCarUICS
                 var connectionProfile = NetworkInformation.GetInternetConnectionProfile();
                 this.socket.BindServiceNameAsync("12346", connectionProfile.NetworkAdapter);
                 //await this.socket.BindEndpointAsync(new HostName("10.125.149.59"), "12345");
-                this.socket.JoinMulticastGroup(new HostName("224.0.0.251"));
+                this.socket.JoinMulticastGroup(new HostName("234.5.6.7"));
             }
 
             public void Dispose()

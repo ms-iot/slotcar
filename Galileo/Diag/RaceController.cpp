@@ -186,15 +186,30 @@ void RaceController::StatusCheck()
 
 	if (reportableRaceStatus == RACING && anyCarsOffTrack)
 	{
+        if (lastRaceStatus != OFF_TRACK)
+        {
+            lastStatusChangeDateTime = GetTickCount();
+        }
 		reportableRaceStatus = OFF_TRACK;
 	}
 
 	bool statusChanged = reportableRaceStatus != lastRaceStatus;
 
-	if (!statusChanged)
+    if (!statusChanged)
 	{
-		return;
+        DWORD diff = (GetTickCount() - lastStatusChangeDateTime);
+        if (reportableRaceStatus == OFF_TRACK &&  diff > 10000) {
+            raceStatus = WAITING;
+            reportableRaceStatus = WAITING;
+        }
+        else {
+            return;
+        }
+
+//		return;
 	}
+
+    lastStatusChangeDateTime = GetTickCount();
 
 	lastRaceStatusTicks = ticks;
 	lastRaceStatus = reportableRaceStatus;

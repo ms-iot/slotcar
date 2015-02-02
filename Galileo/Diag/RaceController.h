@@ -36,6 +36,7 @@ class RaceController
 	std::vector<Track> tracks;
 	int tracksReady = 0;
 	int trackStatusId;
+    long lastStatusChangeDateTime = 0;
 
 public:
 	int trackCount = 2;

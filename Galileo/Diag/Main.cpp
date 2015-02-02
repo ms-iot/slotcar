@@ -21,7 +21,7 @@ void setup()
 	raceController.useColorSensors = true;	// use color sensors to detect cars ready to start
 	raceController.raceLaps = 8;			// how many laps make a race?
 	raceController.multicastAddress = "234.5.6.7";	 // multicast group
-	raceController.multicastMask = "255.255.255.255"; // multicast mask
+	raceController.multicastMask = "169.254.255.255"; // multicast mask
 
 	raceController.Initialize();
 

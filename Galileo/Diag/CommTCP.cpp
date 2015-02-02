@@ -74,7 +74,7 @@ private:
 
                     uint16_t pwm = atoi(spwm.c_str());
 
-                    Log("PWM: %d\n", pwm);
+                    //Log("PWM: %d\n", pwm);
                     
                     if (pwm > 0 && pwm < 255)
                     {

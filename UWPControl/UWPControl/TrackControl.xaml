@@ -1,0 +1,30 @@
+﻿<Page
+    x:Class="UWPControl.TrackControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UWPControl"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+
+    <Grid  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title Panel -->
+        <StackPanel Grid.Row="0" Margin="19,19,19,0">
+            <TextBlock Name="TrackDisplay" Text="Track"/>
+            <TextBlock Name="ConnectionError" Text="Could not connect." Visibility="Collapsed" />
+            <ProgressRing Name="progress" Width="50" Height="50" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" x:Name="ContentRoot">
+            <!-- winrtt:Gauge Name="Speed" Width="250" Height="250" Minimum="0" Maximum="100"/ -->
+        </Grid>
+        
+        <Button Grid.Row="2" x:Name="Done" Content="Done" HorizontalAlignment="Center" Margin="0,50,0,19" VerticalAlignment="Bottom" Click="Done_Click"/>
+    </Grid>
+</Page>

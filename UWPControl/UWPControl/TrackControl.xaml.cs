@@ -43,111 +43,93 @@ namespace UWPControl
     /// </summary>
     public sealed partial class TrackControl : Page
     {
-        StreamSocket clientSocket = new StreamSocket();
-        DataWriter writer = null;
-        bool connected = false;
-
         HostName serverHost;
 
         const string gamePort1 = "25666";
         const string gamePort2 = "25667";
+
+        const long TrackUpdateInterval = 100;   // Update Interval in Milliseconds
+
+        private TrackLane connectedToLane;
+        DateTime lastUpdated;
+
+        private string portToUse()
+        {
+            string port = gamePort2;
+            if (connectedToLane == TrackLane.Lane1)
+            {
+                port = gamePort1;
+            }
+
+            return port;
+
+        }
 
         public TrackControl()
         {
             this.InitializeComponent();
         }
 
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            lastUpdated = DateTime.Now;
+
             var init = e.Parameter as TrackControlInit;
-            progress.IsActive = true;
-            Accelerometer.GetDefault().ReadingChanged += Accelerometer_ReadingChanged;
-
-            serverHost = new HostName(init.computerName);
-
-            if (init != null)
+            if (init != null && !string.IsNullOrEmpty(init.computerName))
             {
-                string port = gamePort2;
-                if (init.lane == TrackLane.Lane1)
-                {
-                    port = gamePort1;
-                }
-
-                try
-                {
-                    await clientSocket.ConnectAsync(serverHost, port);
-                    writer = new DataWriter(clientSocket.OutputStream);
-                    ContentRoot.Visibility = Visibility.Visible;
-
-                    connected = true;
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex);
-
-                    ConnectionError.Visibility = Visibility.Visible;
-                }
-
-                progress.IsActive = false;
-                progress.Visibility = Visibility.Collapsed;
-
-                if (!connected)
-                {
-                    await Task.Delay(5000);
-                    this.Frame.Navigate(typeof(MainPage));
-                }
+                connectedToLane = init.lane;
+                serverHost = new HostName(init.computerName);
 
             }
 
+            Accelerometer accel = Accelerometer.GetDefault();
+            accel.ReadingChanged += Accelerometer_ReadingChanged;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             Accelerometer.GetDefault().ReadingChanged -= Accelerometer_ReadingChanged;
-            if (clientSocket != null)
-            {
-                clientSocket.Dispose();
-                clientSocket = null;
-            }
-
-            if (writer != null)
-            {
-                writer.Dispose();
-                writer = null;
-            }
         }
 
         private async void Accelerometer_ReadingChanged(Accelerometer sender, AccelerometerReadingChangedEventArgs args)
         {
+            if (DateTime.Now.Subtract(lastUpdated).Milliseconds < TrackUpdateInterval)
+            {
+                return;
+            }
+
+            lastUpdated = DateTime.Now;
+
             double speed = (1.0 - args.Reading.AccelerationX);
             var i = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                /*
-                // Show the values graphically.
-                xLine.X2 = xLine.X1 + args.Reading.AccelerationX * 200;
-                yLine.Y2 = yLine.Y1 - args.Reading.AccelerationY * 200;
-                zLine.X2 = zLine.X1 - args.Reading.AccelerationZ * 100;
-                zLine.Y2 = zLine.Y1 + args.Reading.AccelerationZ * 100;
-                */
+                // TODO: Add visualization
 
                // Speed.Value =  speed * Speed.Maximum;
             });
 
-            if (connected)
+            // Scale number to 0 - .75;
+            double pwm = (speed * 0.75) * 255.0;
+            try
             {
-                // Scale number to 0 - .75;
-                double pwm = (speed * 0.75) * 255.0;
-                try
+                string s = "{\"PWM\": \"" + pwm.ToString("0") + "\"}\n";
+
+                using (StreamSocket clientSocket = new StreamSocket())
                 {
-                    string s = "{\"PWM\": \"" + pwm.ToString("0") + "\"}\n";
-                    uint len = writer.WriteString(s);
-                    await writer.StoreAsync();
-                    await writer.FlushAsync();
+                    DataWriter writer = null;
+                    await clientSocket.ConnectAsync(serverHost, portToUse());
+                    using (writer = new DataWriter(clientSocket.OutputStream))
+                    {
+
+                        uint len = writer.WriteString(s);
+                        await writer.StoreAsync();
+                        await writer.FlushAsync();
+                    }
                 }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e);
-                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
             }
         }
 

@@ -17,8 +17,6 @@
         <!-- Title Panel -->
         <StackPanel Grid.Row="0" Margin="19,19,19,0">
             <TextBlock Name="TrackDisplay" Text="Track"/>
-            <TextBlock Name="ConnectionError" Text="Could not connect." Visibility="Collapsed" />
-            <ProgressRing Name="progress" Width="50" Height="50" />
         </StackPanel>
 
         <Grid Grid.Row="1" x:Name="ContentRoot">

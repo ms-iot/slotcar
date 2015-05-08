@@ -33,8 +33,6 @@ namespace SlotCar
 
         private I2cDevice motorController = null;
 
-        private byte direction = 0;
-
         public MotorController()
         {
 

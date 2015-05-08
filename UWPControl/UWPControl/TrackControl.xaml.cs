@@ -49,6 +49,7 @@ namespace UWPControl
         const string gamePort2 = "25667";
 
         const long TrackUpdateInterval = 100;   // Update Interval in Milliseconds
+        bool processing = false;
 
         private TrackLane connectedToLane;
         DateTime lastUpdated;
@@ -93,12 +94,13 @@ namespace UWPControl
 
         private async void Accelerometer_ReadingChanged(Accelerometer sender, AccelerometerReadingChangedEventArgs args)
         {
-            if (DateTime.Now.Subtract(lastUpdated).Milliseconds < TrackUpdateInterval)
+            if (DateTime.Now.Subtract(lastUpdated).Milliseconds < TrackUpdateInterval || processing)
             {
                 return;
             }
 
             lastUpdated = DateTime.Now;
+            processing = true;
 
             double speed = (1.0 - args.Reading.AccelerationX);
             var i = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -131,6 +133,8 @@ namespace UWPControl
             {
                 Debug.WriteLine(e);
             }
+
+            processing = false;
         }
 
         private void Done_Click(object sender, RoutedEventArgs e)

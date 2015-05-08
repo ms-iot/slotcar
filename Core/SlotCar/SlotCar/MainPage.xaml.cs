@@ -27,12 +27,14 @@ namespace SlotCar
         protected override async void OnNavigatedTo(NavigationEventArgs navArgs)
         {
             await motorController.initialize();
-            await track1NetworkInterface.StartServer();
-            await track2NetworkInterface.StartServer();
+            motorController.setSpeedA(0.0f);
+            motorController.setSpeedB(0.0f);
+
 
             try
             {
                 track1NetworkInterface = new CommTCP(gamePort1);
+                await track1NetworkInterface.StartServer();
 
                 track1NetworkInterface.speedUpdate += (speed) =>
                 {
@@ -49,6 +51,7 @@ namespace SlotCar
             try
             {
                 track2NetworkInterface = new CommTCP(gamePort2);
+                await track2NetworkInterface.StartServer();
                 track2NetworkInterface.speedUpdate += (speed) =>
                 {
                 // negative because of how the track is wired

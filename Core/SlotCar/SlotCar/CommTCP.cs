@@ -40,7 +40,7 @@ namespace SlotCar
             sock.ConnectionReceived += async (s, e) => await ProcessRequestAsync(e.Socket);
         }
 
-        internal async void StartServer()
+        internal async Task StartServer()
         {
             await sock.BindServiceNameAsync(listingOnPort);
         }

@@ -27,6 +27,8 @@ namespace SlotCar
         protected override async void OnNavigatedTo(NavigationEventArgs navArgs)
         {
             await motorController.initialize();
+            await track1NetworkInterface.StartServer();
+            await track2NetworkInterface.StartServer();
 
             try
             {

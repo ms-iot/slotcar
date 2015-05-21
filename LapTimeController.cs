@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Slotcar
+namespace SlotCar
 {
     class LapTimeController
     {
@@ -15,18 +15,26 @@ namespace Slotcar
 
         TimeSpan BestLapTime = TimeSpan.MaxValue;
 
-        public string BestTime
+        public string BestTimeAsString
         {
             get
             {
                 if (BestLapTime == TimeSpan.MaxValue)
                 {
-                    return "Waiting";
+                    return "--:--.----";
                 }
                 else
                 {
                     return String.Format("{0,2:00}:{1,2:00}.{2,3:000}", BestLapTime.Minutes, BestLapTime.Seconds, BestLapTime.Milliseconds);
                 }
+            }
+        }
+
+        public TimeSpan BestTime
+        {
+            get
+            {
+                return BestLapTime;
             }
         }
 

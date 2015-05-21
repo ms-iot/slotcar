@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Slotcar
+namespace SlotCar
 {
     class Lap
     {
@@ -27,6 +27,8 @@ namespace Slotcar
             }
         }
 
+        private TimeSpan MinimumLapTime = TimeSpan.FromSeconds(10);
+
         public bool Update()
         {
             bool lapDone = false;
@@ -36,9 +38,16 @@ namespace Slotcar
             }
             else
             {
-                EndTime = DateTime.Now;
-                duration = EndTime - StartTime;
-                lapDone = true;
+                DateTime updateTime = DateTime.Now;
+                TimeSpan lapTime = updateTime - StartTime;
+
+                if (lapTime > MinimumLapTime)
+                {
+                    // Any lap < the Minimum Lap Time is going to be a glitch.
+                    duration = lapTime;
+                    EndTime = updateTime;
+                    lapDone = true;
+                }
             }
 
             return lapDone;

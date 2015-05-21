@@ -21,15 +21,18 @@
 
 
 <Page
-    x:Class="Slotcar.MainPage"
+    x:Class="SlotCar.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Slotcar"
+    xmlns:local="using:SlotCar"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    d:DesignWidth="1920"
+    d:DesignHeight="1080"
+    >
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid>
         <Grid HorizontalAlignment="Center">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="450"/>
@@ -37,7 +40,6 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <TextBlock x:Name="GpioStatus" Text="Waiting to initialize GPIO..." Margin="10,50,10,10" TextAlignment="Center" FontSize="35" />
                 <Grid HorizontalAlignment="Left">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="200"/>
@@ -53,75 +55,108 @@
                         <RowDefinition Height="120"/>
                         <RowDefinition Height="120"/>
                         <RowDefinition Height="120"/>
+                        <RowDefinition Height="120"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Start Button"  FontSize="35" VerticalAlignment="Center"/>
-                    <Ellipse Grid.Row="0" Grid.Column="1" x:Name="_StartButton" Fill="LightGray" Stroke="White" Width="100" Height="100"/>
+                    <Button Grid.Row="0" Grid.Column="1" x:Name="_StartButton1" Content="1 Player" Width="100" Height="100" Click="OnStartButton1Click"/>
+                    <Button Grid.Row="0" Grid.Column="3" x:Name="_StartButton2" Content="2 Player" Width="100" Height="100" Click="OnStartButton2Click"/>
 
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="Lane 1"  FontSize="35" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="3" Text="Lane 2"  FontSize="35" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Start Line"  FontSize="35" VerticalAlignment="Center"/>
                     <Ellipse Grid.Row="2" Grid.Column="1" x:Name="_StartLineLane1" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="_StartLineLane1Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <Ellipse Grid.Row="2" Grid.Column="3" x:Name="_StartLineLane2" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="2" Grid.Column="3" x:Name="_StartLineLane2Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Turn 1 Enter"  FontSize="35" VerticalAlignment="Center"/>
-                    <Ellipse Grid.Row="3" Grid.Column="1" x:Name="_Turn1EnterLane1" Fill="LightGray" Stroke="White" Width="100" Height="100" />
-                    <Ellipse Grid.Row="3" Grid.Column="3" x:Name="_Turn1EnterLane2" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Ready Line"  FontSize="35" VerticalAlignment="Center"/>
+                    <Ellipse Grid.Row="3" Grid.Column="1" x:Name="_ReadyLineLane1" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="_ReadyLineLane1Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Ellipse Grid.Row="3" Grid.Column="3" x:Name="_ReadyLineLane2" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="3" Grid.Column="3" x:Name="_ReadyLineLane2Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Turn 1 Exit"  FontSize="35" VerticalAlignment="Center"/>
-                    <Ellipse Grid.Row="4" Grid.Column="1" x:Name="_Turn1ExitLane1" Fill="LightGray" Stroke="White" Width="100" Height="100" />
-                    <Ellipse Grid.Row="4" Grid.Column="3" x:Name="_Turn1ExitLane2" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Turn 1 Enter"  FontSize="35" VerticalAlignment="Center"/>
+                    <Ellipse Grid.Row="4" Grid.Column="1" x:Name="_Turn1EnterLane1" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="_Turn1EnterLane1Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Ellipse Grid.Row="4" Grid.Column="3" x:Name="_Turn1EnterLane2" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="4" Grid.Column="3" x:Name="_Turn1EnterLane2Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Turn 2 Enter"  FontSize="35" VerticalAlignment="Center"/>
-                    <Ellipse Grid.Row="5" Grid.Column="1" x:Name="_Turn2EnterLane1" Fill="LightGray" Stroke="White" Width="100" Height="100" />
-                    <Ellipse Grid.Row="5" Grid.Column="3" x:Name="_Turn2EnterLane2" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Turn 1 Exit"  FontSize="35" VerticalAlignment="Center"/>
+                    <Ellipse Grid.Row="5" Grid.Column="1" x:Name="_Turn1ExitLane1" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="5" Grid.Column="1" x:Name="_Turn1ExitLane1Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Ellipse Grid.Row="5" Grid.Column="3" x:Name="_Turn1ExitLane2" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="5" Grid.Column="3" x:Name="_Turn1ExitLane2Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Turn 2 Exit"  FontSize="35" VerticalAlignment="Center"/>
-                    <Ellipse Grid.Row="6" Grid.Column="1" x:Name="_Turn2ExitLane1" Fill="LightGray" Stroke="White" Width="100" Height="100" />
-                    <Ellipse Grid.Row="6" Grid.Column="3" x:Name="_Turn2ExitLane2" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Turn 2 Enter"  FontSize="35" VerticalAlignment="Center"/>
+                    <Ellipse Grid.Row="6" Grid.Column="1" x:Name="_Turn2EnterLane1" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="6" Grid.Column="1" x:Name="_Turn2EnterLane1Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Ellipse Grid.Row="6" Grid.Column="3" x:Name="_Turn2EnterLane2" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="6" Grid.Column="3" x:Name="_Turn2EnterLane2Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Turn 2 Exit"  FontSize="35" VerticalAlignment="Center"/>
+                    <Ellipse Grid.Row="7" Grid.Column="1" x:Name="_Turn2ExitLane1" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="7" Grid.Column="1" x:Name="_Turn2ExitLane1Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Ellipse Grid.Row="7" Grid.Column="3" x:Name="_Turn2ExitLane2" Fill="LightGray" Stroke="White" Width="100" Height="100" />
+                    <TextBlock Grid.Row="7" Grid.Column="3" x:Name="_Turn2ExitLane2Pin" FontSize="45" Text="##" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
             </StackPanel>
-            <Grid Grid.Column="2" VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200"/>
-                    <ColumnDefinition Width="200"/>
-                    <ColumnDefinition Width="200"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="Lane 1"  FontSize="35"/>
-                <TextBlock Grid.Row="0" Grid.Column="2" Text="Lane 2"  FontSize="35"/>
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Best Lap"  FontSize="35"/>
-                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="_BestTimeLane1" Text="x-:--"  FontSize="35"/>
-                <TextBlock Grid.Row="1" Grid.Column="2" x:Name="_BestTimeLane2" Text="x-:--"  FontSize="35"/>
-
-                <StackPanel Grid.Row="2" Grid.Column="0" x:Name="_LapHeaders">
-                    <TextBlock Text="Lap 1" FontSize="35"/>
-                    <TextBlock Text="Lap 2" FontSize="35"/>
-                    <TextBlock Text="Lap 3" FontSize="35"/>
-                    <TextBlock Text="Lap 4" FontSize="35"/>
-                    <TextBlock Text="Lap 5" FontSize="35"/>
+            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
+                        <TextBlock Text="Best lap of the day:" FontSize="35" Margin="0,0,20,0"/>
+                        <TextBlock x:Name="_BestLapOfTheDay" Text="--:--.----" FontSize="35" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
+                        <TextBlock Text="Status:" FontSize="35" Margin="0,0,20,0"/>
+                        <TextBlock x:Name="_Status" Text="Ux Startup" FontSize="35" />
+                    </StackPanel>
                 </StackPanel>
-                <StackPanel Grid.Row="2" Grid.Column="1" x:Name="_Lane1Laps">
-                    <TextBlock Text="x-:--"  FontSize="35"/>
-                    <TextBlock Text="x-:--"  FontSize="35"/>
-                    <TextBlock Text="x-:--"  FontSize="35"/>
-                    <TextBlock Text="x-:--"  FontSize="35"/>
-                    <TextBlock Text="x-:--"  FontSize="35"/>
-                </StackPanel>
-                <StackPanel Grid.Row="2" Grid.Column="2" x:Name="_Lane2Laps">
-                    <TextBlock Text="x-:--"  FontSize="35"/>
-                    <TextBlock Text="x-:--"  FontSize="35"/>
-                    <TextBlock Text="x-:--"  FontSize="35"/>
-                    <TextBlock Text="x-:--"  FontSize="35"/>
-                    <TextBlock Text="x-:--"  FontSize="35"/>
-                </StackPanel>
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="100"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Lane 1"  FontSize="35"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Lane 2"  FontSize="35"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Best Lap"  FontSize="35"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="_BestTimeLane1" Text="x-:--"  FontSize="35"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2" x:Name="_BestTimeLane2" Text="x-:--"  FontSize="35"/>
 
-
-            </Grid>
+                    <StackPanel Grid.Row="2" Grid.Column="0" x:Name="_LapHeaders">
+                        <TextBlock Text="Lap 1" FontSize="35"/>
+                        <TextBlock Text="Lap 2" FontSize="35"/>
+                        <TextBlock Text="Lap 3" FontSize="35"/>
+                        <TextBlock Text="Lap 4" FontSize="35"/>
+                        <TextBlock Text="Lap 5" FontSize="35"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Grid.Column="1" x:Name="_Lane1Laps">
+                        <TextBlock Text="x-:--"  FontSize="35"/>
+                        <TextBlock Text="x-:--"  FontSize="35"/>
+                        <TextBlock Text="x-:--"  FontSize="35"/>
+                        <TextBlock Text="x-:--"  FontSize="35"/>
+                        <TextBlock Text="x-:--"  FontSize="35"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Grid.Column="2" x:Name="_Lane2Laps">
+                        <TextBlock Text="x-:--"  FontSize="35"/>
+                        <TextBlock Text="x-:--"  FontSize="35"/>
+                        <TextBlock Text="x-:--"  FontSize="35"/>
+                        <TextBlock Text="x-:--"  FontSize="35"/>
+                        <TextBlock Text="x-:--"  FontSize="35"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="4" Grid.ColumnSpan="4">
+                        <TextBlock x:Name="_Winner1" Text="Lane 1 WINS!" FontSize="75" Visibility="Collapsed"/>
+                        <TextBlock x:Name="_Winner2" Text="Lane 2 WINS!" FontSize="75" Visibility="Collapsed"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
         </Grid>
     </Grid>
 </Page>

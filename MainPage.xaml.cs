@@ -29,9 +29,11 @@ using System.Threading;
 using Windows.Devices.Gpio;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
+using Windows.UI.Xaml;
 
-namespace Slotcar
+namespace SlotCar
 {
     public delegate void uxUpdateHandler(uxUpdateEventArgs args);
 
@@ -74,14 +76,72 @@ namespace Slotcar
             }
         }
 
+        const string gamePort1 = "25666";
+        const string gamePort2 = "25667";
+
+        public MotorController motorController = new MotorController();
+        CommTCP track1NetworkInterface;
+        CommTCP track2NetworkInterface;
+
+
         public Timer timer;
         public MainPage()
         {
+            Globals.theMainPage = this;
             InitializeComponent();
-
             uxUpdate += MainPage_uxUpdate;
 
             Unloaded += MainPage_Unloaded;
+
+        }
+
+        protected override async void OnNavigatedTo(NavigationEventArgs navArgs)
+        {
+
+            try
+            {
+                await motorController.initialize();
+                motorController.setSpeedA(0.0f);
+                motorController.setSpeedB(0.0f);
+            }
+            catch(Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
+
+            try
+            {
+                track1NetworkInterface = new CommTCP(gamePort1);
+                await track1NetworkInterface.StartServer();
+
+                track1NetworkInterface.speedUpdate += (speed) =>
+                {
+                    motorController.setSpeedA(speed);
+                };
+            }
+            catch (Exception e)
+            {
+                // Server can force shutdown which generates an exception. Spew it.
+                Debug.WriteLine(e.Message);
+                Debug.WriteLine(e.StackTrace);
+            }
+
+            try
+            {
+                track2NetworkInterface = new CommTCP(gamePort2);
+                await track2NetworkInterface.StartServer();
+                track2NetworkInterface.speedUpdate += (speed) =>
+                {
+                    // negative because of how the track is wired
+                    motorController.setSpeedB(-speed);
+                };
+            }
+            catch (Exception e)
+            {
+                // Server can force shutdown which generates an exception. Spew it.
+                Debug.WriteLine(e.Message);
+                Debug.WriteLine(e.StackTrace);
+            }
 
             InitGPIO();
 
@@ -95,16 +155,16 @@ namespace Slotcar
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High,
             () =>
             {
-                _BestTimeLane1.Text = RaceController.theRaceController.BestTimeLane1;
-                _BestTimeLane2.Text = RaceController.theRaceController.BestTimeLane2;
+                _BestTimeLane1.Text = Globals.theRaceController.BestTimeLane1;
+                _BestTimeLane2.Text = Globals.theRaceController.BestTimeLane2;
 
                 for (int i = 0; i < RaceController.NumberOfLaps; i++)
                 {
                     TextBlock lane1Lap = _Lane1Laps.Children[i] as TextBlock;
                     TextBlock lane2Lap = _Lane2Laps.Children[i] as TextBlock;
 
-                    lane1Lap.Text = RaceController.theRaceController.LapTime(Player.Lane1, i);
-                    lane2Lap.Text = RaceController.theRaceController.LapTime(Player.Lane2, i);
+                    lane1Lap.Text = Globals.theRaceController.LapTime(Player.Lane1, i);
+                    lane2Lap.Text = Globals.theRaceController.LapTime(Player.Lane2, i);
                 }
             });
         }
@@ -118,20 +178,22 @@ namespace Slotcar
                 var pin = uxBinding.GpioPin;
                 var uxElement = uxBinding.UxObject as Ellipse;
 
-                uxElement.Fill = (args.PinValue == GpioPinValue.High) ? redBrush : grayBrush;
+                var pinValue = uxBinding.GpioPin.Read();
+                uxElement.Fill = (pinValue == GpioPinValue.High) ? redBrush : grayBrush;
 
-                _BestTimeLane1.Text = RaceController.theRaceController.BestTimeLane1;
-                _BestTimeLane2.Text = RaceController.theRaceController.BestTimeLane2;
+                _BestTimeLane1.Text = Globals.theRaceController.BestTimeLane1;
+                _BestTimeLane2.Text = Globals.theRaceController.BestTimeLane2;
 
                 for (int i = 0; i < RaceController.NumberOfLaps; i++)
                 {
                     TextBlock lane1Lap = _Lane1Laps.Children[i] as TextBlock;
                     TextBlock lane2Lap = _Lane2Laps.Children[i] as TextBlock;
 
-                    lane1Lap.Text = RaceController.theRaceController.LapTime(Player.Lane1, i);
-                    lane2Lap.Text = RaceController.theRaceController.LapTime(Player.Lane2, i);
+                    lane1Lap.Text = Globals.theRaceController.LapTime(Player.Lane1, i);
+                    lane2Lap.Text = Globals.theRaceController.LapTime(Player.Lane2, i);
                 }
 
+                _BestLapOfTheDay.Text = Globals.theRaceController.BestTimeAsString;
 
             });
         }
@@ -146,14 +208,14 @@ namespace Slotcar
             // Show an error if there is no GPIO controller
             if (gpio == null)
             {
-                GpioStatus.Text = "There is no GPIO controller on this device.";
+                _Status.Text = "There is no GPIO controller on this device.";
                 return;
             }
 
-            trackSensors = new TrackSensors();
+            trackSensors = Globals.theTrackSensors;
             trackSensors.SetupSensors();
 
-            GpioStatus.Text = "GPIO initialized.";
+            _Status.Text = "GPIO initialized.";
         }
 
         private void MainPage_Unloaded(object sender, object args)
@@ -164,10 +226,11 @@ namespace Slotcar
 
         void InitUx()
         {
-            GPIOPinToUxBindingDictionary[trackSensors.StartButton.PinNumber] = new UXBinding(trackSensors.StartButton, _StartButton);
-
             GPIOPinToUxBindingDictionary[trackSensors.StartLineLane1.PinNumber] = new UXBinding(trackSensors.StartLineLane1, _StartLineLane1);
             GPIOPinToUxBindingDictionary[trackSensors.StartLineLane2.PinNumber] = new UXBinding(trackSensors.StartLineLane2, _StartLineLane2);
+
+            GPIOPinToUxBindingDictionary[trackSensors.ReadyLineLane1.PinNumber] = new UXBinding(trackSensors.ReadyLineLane1, _ReadyLineLane1);
+            GPIOPinToUxBindingDictionary[trackSensors.ReadyLineLane2.PinNumber] = new UXBinding(trackSensors.ReadyLineLane2, _ReadyLineLane2);
 
             GPIOPinToUxBindingDictionary[trackSensors.Turn1EnterLane1.PinNumber] = new UXBinding(trackSensors.Turn1EnterLane1, _Turn1EnterLane1);
             GPIOPinToUxBindingDictionary[trackSensors.Turn1EnterLane2.PinNumber] = new UXBinding(trackSensors.Turn1EnterLane2, _Turn1EnterLane2);
@@ -186,6 +249,11 @@ namespace Slotcar
 
                 var pinValue = pin.Read();
                 uxElement.Fill = (pinValue == GpioPinValue.High) ? redBrush : grayBrush;
+                var pinElement = this.FindName(uxElement.Name + "Pin") as TextBlock;
+                if (pinElement != null)
+                {
+                    pinElement.Text = pin.PinNumber.ToString();
+                }
             }
 
             _BestTimeLane1.Text = "00:00.000";
@@ -201,7 +269,7 @@ namespace Slotcar
                 TextBlock turn1 = new TextBlock();
                 TextBlock turn2 = new TextBlock();
 
-                header.Text = "Lap " + (i+1);
+                header.Text = "Lap " + (i + 1);
                 header.FontSize = LapFontSize;
 
                 turn1.Text = "00:00.000" + i;
@@ -217,8 +285,52 @@ namespace Slotcar
 
         }
 
+        public async void ShowWinner(Player whichPlayer)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High,
+            () =>
+            {
+                switch (whichPlayer)
+                {
+                    case Player.Lane1:
+                        {
+                            _Winner1.Visibility = Visibility.Visible;
+                        }
+                        break;
+
+                    case Player.Lane2:
+                        {
+                            _Winner2.Visibility = Visibility.Visible;
+                        }
+                        break;
+                }
+            });
+        }
+
+        public async void ClearWinner()
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High,
+            () =>
+            {
+                _Winner1.Visibility = Visibility.Collapsed;
+                _Winner2.Visibility = Visibility.Collapsed;
+            });
+        }
 
         private SolidColorBrush redBrush = new SolidColorBrush(Windows.UI.Colors.Red);
         private SolidColorBrush grayBrush = new SolidColorBrush(Windows.UI.Colors.LightGray);
+
+        private void OnStartButton1Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("1 Player Start Button");
+            Globals.theRaceController.StartRace(1);
+
+        }
+
+        private void OnStartButton2Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("2 Player Start Button");
+            Globals.theRaceController.StartRace(2);
+        }
     }
 }

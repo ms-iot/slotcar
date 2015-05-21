@@ -21,9 +21,9 @@
 
 
 <Application
-    x:Class="Slotcar.App"
+    x:Class="SlotCar.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Slotcar">
+    xmlns:local="using:SlotCar">
 
 </Application>

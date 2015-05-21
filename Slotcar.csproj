@@ -7,8 +7,8 @@
     <ProjectGuid>{6E9F8CF0-63A2-4F01-B75D-446BE53A4383}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Slotcar</RootNamespace>
-    <AssemblyName>Slotcar</AssemblyName>
+    <RootNamespace>SlotCar</RootNamespace>
+    <AssemblyName>SlotCar</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.10069.0</TargetPlatformVersion>
@@ -107,13 +107,17 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CommTCP.cs" />
+    <Compile Include="Globals.cs" />
     <Compile Include="Lap.cs" />
     <Compile Include="LapTimeController.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MotorController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RaceController.cs" />
+    <Compile Include="Stig.cs" />
     <Compile Include="TrackSensors.cs" />
   </ItemGroup>
   <ItemGroup>

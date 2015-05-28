@@ -56,13 +56,6 @@ namespace SlotCar
         public GpioPin StartButton1;
         public GpioPin StartButton2;
 
-        public bool IsPinSet(int pinNumber)
-        {
-            GpioPin pin = gpio.OpenPin(pinNumber);
-            GpioPinValue pinValue = pin.Read();
-            return pinValue == GpioPinValue.High;
-        }
-
         private void SetupSensor(out GpioPin pin, int pinNumber, GpioPinDriveMode mode = GpioPinDriveMode.Input)
         {
             pin = null;
@@ -171,6 +164,18 @@ namespace SlotCar
                     case ReadyLineLane1_GPIO:
                         {
                             Debug.WriteLine("Ready Line Lane 1");
+                            Globals.theRaceController.Player1Ready = true;
+
+                            if (Globals.theRaceController.State == RaceState.Resetting)
+                            {
+                                // Car 1 ready 
+                                Globals.theMainPage.motorController.setSpeedA(0);
+                                if (Globals.theRaceController.Player2Ready)
+                                {
+                                    Globals.theRaceController.State = RaceState.Waiting;
+                                }
+                            }
+
                             UpdateLap(eventArgs, pinValue, Player.Lane1);
                             Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Straight1);
                         }
@@ -179,6 +184,18 @@ namespace SlotCar
                     case ReadyLineLane2_GPIO:
                         {
                             Debug.WriteLine("Ready Line Lane 2");
+                            Globals.theRaceController.Player2Ready = true;
+
+                            if (Globals.theRaceController.State == RaceState.Resetting)
+                            {
+                                // Car 2 ready 
+                                Globals.theMainPage.motorController.setSpeedB(0);
+                                if (Globals.theRaceController.Player1Ready)
+                                {
+                                    Globals.theRaceController.State = RaceState.Waiting;
+                                }
+                            }
+
                             UpdateLap(eventArgs, pinValue, Player.Lane2);
                             Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Straight1);
                         }
@@ -186,6 +203,7 @@ namespace SlotCar
 
                     case Turn1EnterLane1_GPIO:
                         {
+                            Globals.theRaceController.Player1Ready = false;
                             Debug.WriteLine("Turn 1 Enter Lane 1");
                             Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Turn1);
                         }
@@ -193,6 +211,7 @@ namespace SlotCar
 
                     case Turn1EnterLane2_GPIO:
                         {
+                            Globals.theRaceController.Player2Ready = false;
                             Debug.WriteLine("Turn 1 Enter Lane 2");
                             Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Turn1);
                         }
@@ -200,6 +219,7 @@ namespace SlotCar
 
                     case Turn1ExitLane1_GPIO:
                         {
+                            Globals.theRaceController.Player1Ready = false;
                             Debug.WriteLine("Turn 1 Exit Lane 1");
                             Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Straight2);
                         }
@@ -207,6 +227,7 @@ namespace SlotCar
 
                     case Turn1ExitLane2_GPIO:
                         {
+                            Globals.theRaceController.Player2Ready = false;
                             Debug.WriteLine("Turn 1 Exit Lane 2");
                             Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Straight2);
                         }
@@ -215,6 +236,7 @@ namespace SlotCar
 
                     case Turn2EnterLane1_GPIO:
                         {
+                            Globals.theRaceController.Player1Ready = false;
                             Debug.WriteLine("Turn 2 Enter Lane 1");
                             Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Turn2);
                         }
@@ -222,6 +244,7 @@ namespace SlotCar
 
                     case Turn2EnterLane2_GPIO:
                         {
+                            Globals.theRaceController.Player2Ready = false;
                             Debug.WriteLine("Turn 2 Enter Lane 2");
                             Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Turn2);
                         }
@@ -229,6 +252,7 @@ namespace SlotCar
 
                     case Turn2ExitLane1_GPIO:
                         {
+                            Globals.theRaceController.Player1Ready = false;
                             Debug.WriteLine("Turn 2 Exit Lane 1");
                             Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Straight1);
                         }
@@ -236,6 +260,7 @@ namespace SlotCar
 
                     case Turn2ExitLane2_GPIO:
                         {
+                            Globals.theRaceController.Player2Ready = false;
                             Debug.WriteLine("Turn 2 Exit Lane 2");
                             Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Straight1);
                         }

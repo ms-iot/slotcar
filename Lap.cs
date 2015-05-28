@@ -5,6 +5,7 @@ namespace SlotCar
     public class Lap
     {
         public const string UndefinedLapTime = "--:--.----";
+        public readonly TimeSpan MinimumLapTime = TimeSpan.FromSeconds(1);
 
         private DateTime StartTime = new DateTime();
         private DateTime EndTime = new DateTime();
@@ -29,7 +30,6 @@ namespace SlotCar
             }
         }
 
-        public readonly TimeSpan MinimumLapTime = TimeSpan.FromSeconds(10);
 
         public bool Update()
         {

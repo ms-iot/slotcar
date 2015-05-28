@@ -13,7 +13,17 @@ namespace SlotCar
         LapTimeController[] LapControllers = new LapTimeController[2];
         private Stig ComputerPlayer = null;
 
+        public bool Player1Ready { get; set; }
+        public bool Player2Ready { get; set; }
+
         TimeSpan BestLapTime = TimeSpan.MaxValue;
+
+        public RaceController()
+        {
+            Player1Ready = false;
+            Player2Ready = false;
+        }
+
         public string BestTimeAsString
         {
             get
@@ -74,14 +84,8 @@ namespace SlotCar
                     case RaceState.Resetting:
                         {
                             // Move cars around the track to reset starting positions.
+                            // The work will done by the update timer ticks calling reset
                             raceState = value;
-
-                            bool Player1Ready = Reset(Player.Lane1);
-                            bool Player2Ready = Reset(Player.Lane2);
-                            if (Player1Ready && Player2Ready)
-                            {
-                                State = RaceState.Waiting;
-                            }
                         }
                         break;
                 }
@@ -104,35 +108,6 @@ namespace SlotCar
             {
                 BestLapTime = LapControllers[1].BestTime;
             }
-        }
-
-        private bool Reset(Player whichPlayer)
-        {
-            bool playerReadyForNextRace = false;
-
-            switch (whichPlayer)
-            {
-                case Player.Lane1:
-                    {
-                        if (Globals.theTrackSensors.IsPinSet(TrackSensors.ReadyLineLane1_GPIO))
-                        {
-                            Globals.theMainPage.motorController.setSpeedA(0);
-                            playerReadyForNextRace = true;
-                        }
-                    }
-                    break;
-                case Player.Lane2:
-                    {
-                        if (Globals.theTrackSensors.IsPinSet(TrackSensors.ReadyLineLane2_GPIO))
-                        {
-                            Globals.theMainPage.motorController.setSpeedB(0);
-                            playerReadyForNextRace = true;
-                        }
-                    }
-                    break;
-            }
-
-            return playerReadyForNextRace;
         }
 
         internal void SetSpeed(Player whichPlayer, float newSpeed)
@@ -215,11 +190,11 @@ namespace SlotCar
             else
             {
                 Debug.WriteLine("Lane1 Motor on");
-                Globals.theMainPage.motorController.setSpeedA(.25f);
+                Globals.theMainPage.motorController.setSpeedA(.35f);
             }
 
             Debug.WriteLine("Lane2 Motor on");
-            Globals.theMainPage.motorController.setSpeedB(.25f);
+            Globals.theMainPage.motorController.setSpeedB(.35f);
 
         }
 
@@ -237,8 +212,8 @@ namespace SlotCar
             // done with the computer
             ComputerPlayer = null;
 
-            // Display winner
-            State = RaceState.Waiting;
+            // Reset the cars
+            State = RaceState.Resetting;
         }
 
         public void Update(Player whichPlayer)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,11 +11,11 @@ namespace SlotCar
     {
         Player WhichPlayer;
 
-        float MaxTurn1Speed = .5f;
-        float MaxTurn2Speed = .5f;
+        float MaxTurn1Speed = .30f;
+        float MaxTurn2Speed = .30f;
         float MaxStraight1Speed = .5f;
         float MaxStraight2Speed = .5f;
-        float MaxOffTrackSpeed = .25f;
+        float MaxOffTrackSpeed = .35f;
 
         CarPosition CurrentCarPosition;
         public Stig(Player whichPlayer)
@@ -37,37 +38,47 @@ namespace SlotCar
 
         void SetSpeed()
         {
+            float newSpeed = 0f;
             switch (CurrentCarPosition)
             {
                 case CarPosition.Straight1:
                     {
-                        Globals.theRaceController.SetSpeed(WhichPlayer, MaxStraight1Speed);
+                        Debug.WriteLine("Lane {0}, Straight 1 speed: ", WhichPlayer+1);
+                           newSpeed = MaxStraight1Speed;
                     }break;
 
                 case CarPosition.Turn1:
                     {
-                        Globals.theRaceController.SetSpeed(WhichPlayer, MaxTurn1Speed);
+                        Debug.WriteLine("Lane {0}, Turn1 1 speed: ", WhichPlayer + 1);
+                        newSpeed = MaxTurn1Speed;
                     }
                     break;
 
                 case CarPosition.Straight2:
                     {
-                        Globals.theRaceController.SetSpeed(WhichPlayer, MaxStraight2Speed);
+                        Debug.WriteLine("Lane {0}, Straight 2 speed: ", WhichPlayer + 1);
+                        newSpeed = MaxStraight2Speed;
                     }
                     break;
 
                 case CarPosition.Turn2:
                     {
-                        Globals.theRaceController.SetSpeed(WhichPlayer, MaxTurn2Speed);
+                        Debug.WriteLine("Lane {0}, Turn 2 speed: ", WhichPlayer + 1);
+                        newSpeed = MaxTurn2Speed;
                     }
                     break;
 
                 case CarPosition.OffTrack:
                     {
-                        Globals.theRaceController.SetSpeed(WhichPlayer, MaxOffTrackSpeed);
+                        Debug.WriteLine("Lane {0}, Offtrack speed: ", WhichPlayer + 1);
+                        newSpeed = MaxOffTrackSpeed;
                     }
                     break;
             }
+            Globals.theRaceController.SetSpeed(WhichPlayer, newSpeed);
+            Debug.WriteLine(newSpeed);
+
+
         }
     }
 }

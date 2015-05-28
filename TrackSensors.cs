@@ -24,18 +24,18 @@ namespace SlotCar
         //GPIO_12
         //GPIO_16
 
-        public const int StartLineLane1_GPIO = 12;
-        public const int ReadyLineLane1_GPIO = 16;
-        public const int Turn1EnterLane1_GPIO = 27;
-        public const int Turn1ExitLane1_GPIO = 5;
-        public const int Turn2EnterLane1_GPIO = 13;
-        public const int Turn2ExitLane1_GPIO = 23;
+        public const int StartLineLane1_GPIO = 13;
+        public const int ReadyLineLane1_GPIO = 6;
+        public const int Turn1EnterLane1_GPIO = 16;
+        public const int Turn1ExitLane1_GPIO = 24;
+        public const int Turn2EnterLane1_GPIO = 18;
+        public const int Turn2ExitLane1_GPIO = 27;
 
-        public const int StartLineLane2_GPIO = 6;
-        public const int ReadyLineLane2_GPIO = 18;
-        public const int Turn1EnterLane2_GPIO = 24;
+        public const int StartLineLane2_GPIO = 26;
+        public const int ReadyLineLane2_GPIO = 5;
+        public const int Turn1EnterLane2_GPIO = 12;
         public const int Turn1ExitLane2_GPIO = 25;
-        public const int Turn2EnterLane2_GPIO = 26;
+        public const int Turn2EnterLane2_GPIO = 23;
         public const int Turn2ExitLane2_GPIO = 22;
 
 

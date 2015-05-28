@@ -2,8 +2,10 @@
 
 namespace SlotCar
 {
-    class Lap
+    public class Lap
     {
+        public const string UndefinedLapTime = "--:--.----";
+
         private DateTime StartTime = new DateTime();
         private DateTime EndTime = new DateTime();
         private TimeSpan duration = TimeSpan.Zero;
@@ -16,7 +18,7 @@ namespace SlotCar
             {
                 if (StartTime.Year == 1)
                 {
-                    return "--:--.----";
+                    return UndefinedLapTime;
                 }
                 else
                 {
@@ -27,7 +29,7 @@ namespace SlotCar
             }
         }
 
-        private TimeSpan MinimumLapTime = TimeSpan.FromSeconds(10);
+        public readonly TimeSpan MinimumLapTime = TimeSpan.FromSeconds(10);
 
         public bool Update()
         {

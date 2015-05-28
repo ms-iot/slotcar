@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SlotCar
 {
-    class LapTimeController
+    public class LapTimeController
     {
         Lap[] LapsList;
         int CurrentLap = 0;
@@ -21,7 +21,7 @@ namespace SlotCar
             {
                 if (BestLapTime == TimeSpan.MaxValue)
                 {
-                    return "--:--.----";
+                    return Lap.UndefinedLapTime;
                 }
                 else
                 {

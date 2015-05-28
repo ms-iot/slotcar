@@ -13,16 +13,7 @@ namespace SlotCar
         LapTimeController[] LapControllers = new LapTimeController[2];
         private Stig ComputerPlayer = null;
 
-        public bool Player1Ready { get; set; }
-        public bool Player2Ready { get; set; }
-
         TimeSpan BestLapTime = TimeSpan.MaxValue;
-
-        public RaceController()
-        {
-            Player1Ready = false;
-            Player2Ready = false;
-        }
 
         public string BestTimeAsString
         {
@@ -78,14 +69,6 @@ namespace SlotCar
                             UpdateBestLapTimeToDate();
                             ShowWinner();
                             End();
-                        }
-                        break;
-
-                    case RaceState.Resetting:
-                        {
-                            // Move cars around the track to reset starting positions.
-                            // The work will done by the update timer ticks calling reset
-                            raceState = value;
                         }
                         break;
                 }
@@ -158,6 +141,11 @@ namespace SlotCar
 
         void Start(int numberOfPlayers)
         {
+            // TODO: 
+            // Verify the cars are both on the Ready line
+            // Do a start countdown on screen
+            // Transfer control of the cars to the phone(s) depending on number of players.
+
             Debug.WriteLine("RaceController::Start");
 
             Globals.theMainPage.ClearWinner();
@@ -202,18 +190,20 @@ namespace SlotCar
         {
             Debug.WriteLine("RaceController::End");
 
+            // done with the computer
+            ComputerPlayer = null;
+
             // Disable controls
+
+            // Turn off motors (do this after getting rid of the computer player so if it coasts over a sensor it doesn't overide the speed.
             Debug.WriteLine("Lane1 Motor off");
             Globals.theMainPage.motorController.setSpeedA(.0f);
 
             Debug.WriteLine("Lane2 Motor off");
             Globals.theMainPage.motorController.setSpeedB(.0f);
 
-            // done with the computer
-            ComputerPlayer = null;
-
-            // Reset the cars
-            State = RaceState.Resetting;
+            // Go back to idle
+            State = RaceState.Waiting;
         }
 
         public void Update(Player whichPlayer)

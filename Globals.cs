@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace SlotCar
 {
-    public enum RaceState { Waiting, Starting, Running, Over, Resetting };
+    public enum RaceState { Waiting, Starting, Running, Over };
     public enum Player { Lane1, Lane2 };
-    public enum CarPosition { Straight1, Turn1, Straight2, Turn2, OffTrack }
+    public enum CarPosition { Start, Turn1, Straight1, Turn2, Straight2, OffTrack }
 
     public static class Globals
     {

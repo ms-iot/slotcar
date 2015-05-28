@@ -11,10 +11,11 @@ namespace SlotCar
     {
         Player WhichPlayer;
 
-        float MaxTurn1Speed = .30f;
-        float MaxTurn2Speed = .30f;
+        float MaxStartSpeed = .35f;
+        float MaxTurn1Speed = .35f;
+        float MaxTurn2Speed = .35f;
         float MaxStraight1Speed = .5f;
-        float MaxStraight2Speed = .5f;
+        float MaxStraight2Speed = .45f;
         float MaxOffTrackSpeed = .35f;
 
         CarPosition CurrentCarPosition;
@@ -25,7 +26,7 @@ namespace SlotCar
 
         public void Go()
         {
-            CurrentCarPosition = CarPosition.Straight1;
+            CurrentCarPosition = CarPosition.Start;
 
             SetSpeed();
         }
@@ -41,11 +42,19 @@ namespace SlotCar
             float newSpeed = 0f;
             switch (CurrentCarPosition)
             {
+                case CarPosition.Start:
+                    {
+                        Debug.WriteLine("Lane {0}, Start speed: ", WhichPlayer + 1);
+                        newSpeed = MaxStartSpeed;
+                    }
+                    break;
+
                 case CarPosition.Straight1:
                     {
-                        Debug.WriteLine("Lane {0}, Straight 1 speed: ", WhichPlayer+1);
-                           newSpeed = MaxStraight1Speed;
-                    }break;
+                        Debug.WriteLine("Lane {0}, Straight 1 speed: ", WhichPlayer + 1);
+                        newSpeed = MaxStraight1Speed;
+                    }
+                    break;
 
                 case CarPosition.Turn1:
                     {
@@ -77,7 +86,6 @@ namespace SlotCar
             }
             Globals.theRaceController.SetSpeed(WhichPlayer, newSpeed);
             Debug.WriteLine(newSpeed);
-
 
         }
     }

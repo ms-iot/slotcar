@@ -11,7 +11,7 @@ namespace SlotCar
         private RaceState raceState = RaceState.Waiting;
 
         LapTimeController[] LapControllers = new LapTimeController[2];
-        private Stig ComputerPlayer = null;
+        private AutoRacer ComputerPlayer = null;
 
         TimeSpan BestLapTime = TimeSpan.MaxValue;
 
@@ -77,7 +77,7 @@ namespace SlotCar
 
         private void ShowWinner()
         {
-            Globals.theMainPage.ShowWinner(Player.Lane1);
+            Globals.theMainPage.ShowWinner(Globals.theRaceController.Winner);
         }
 
         private void UpdateBestLapTimeToDate()
@@ -138,6 +138,7 @@ namespace SlotCar
             }
         }
 
+        public Player Winner { get; private set; }
 
         void Start(int numberOfPlayers)
         {
@@ -159,7 +160,7 @@ namespace SlotCar
             if (NumberOfPlayers == 1)
             {
                 // Need a computer
-                ComputerPlayer = new Stig(Player.Lane1);
+                ComputerPlayer = new AutoRacer(Player.Lane1);
             }
             // Start countdown
             // Enable controls
@@ -224,6 +225,7 @@ namespace SlotCar
 
             if (endOfRace)
             {
+                Winner = whichPlayer;
                 Debug.WriteLine("End of race detected");
                 State = RaceState.Over;
             }

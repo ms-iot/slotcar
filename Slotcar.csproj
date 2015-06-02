@@ -117,7 +117,7 @@
     <Compile Include="MotorController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RaceController.cs" />
-    <Compile Include="Stig.cs" />
+    <Compile Include="AutoRacer.cs" />
     <Compile Include="TrackSensors.cs" />
   </ItemGroup>
   <ItemGroup>

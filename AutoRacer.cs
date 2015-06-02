@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SlotCar
 {
-    public class Stig
+    public class AutoRacer
     {
         Player WhichPlayer;
 
@@ -19,7 +19,7 @@ namespace SlotCar
         float MaxOffTrackSpeed = .35f;
 
         CarPosition CurrentCarPosition;
-        public Stig(Player whichPlayer)
+        public AutoRacer(Player whichPlayer)
         {
             WhichPlayer = whichPlayer;
         }

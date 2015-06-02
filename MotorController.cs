@@ -61,7 +61,7 @@ namespace SlotCar
             try
             { 
                 // Direction is a bitmask and can only be set for both motors.
-                byte dir = 0x2;
+                byte dir = 0x02;
                 if (percent < 0)
                 {
                     dir = 0x01;

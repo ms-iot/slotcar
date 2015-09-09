@@ -26,12 +26,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Net;
+using System.Linq;
 using Windows.Devices.Gpio;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 using Windows.UI.Xaml;
+using Windows.Networking.Connectivity;
 
 namespace SlotCar
 {
@@ -146,7 +149,20 @@ namespace SlotCar
             InitGPIO();
 
             InitUx();
-
+            var icp = NetworkInformation.GetInternetConnectionProfile();
+            if (icp != null && icp.NetworkAdapter != null)
+            {
+                var hostname = NetworkInformation.GetHostNames().FirstOrDefault(
+                                hn =>
+                                hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
+                                && hn.IPInformation.NetworkAdapter.NetworkAdapterId
+                                == icp.NetworkAdapter.NetworkAdapterId && hn.Type == Windows.Networking.HostNameType.Ipv4);
+                
+                 if (null != hostname)
+                 {
+                    _IpTextBlock.Text = hostname.CanonicalName.ToString();
+                }
+            }
             timer = new Timer(timerCallback, this, 0, 100);
         }
 

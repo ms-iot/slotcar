@@ -104,6 +104,10 @@
             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
+                        <TextBlock Text="Device Name:"  FontSize="35" Margin="0,0,20,0"/>
+                        <TextBlock x:Name="_IpTextBlock" Text="" FontSize="35" Margin="0,0,20,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
                         <TextBlock Text="Best lap of the day:" FontSize="35" Margin="0,0,20,0"/>
                         <TextBlock x:Name="_BestLapOfTheDay" Text="--:--.----" FontSize="35" />
                     </StackPanel>

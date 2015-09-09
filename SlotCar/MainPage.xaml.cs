@@ -336,17 +336,17 @@ namespace SlotCar
         private SolidColorBrush redBrush = new SolidColorBrush(Windows.UI.Colors.Red);
         private SolidColorBrush grayBrush = new SolidColorBrush(Windows.UI.Colors.LightGray);
 
-        private void OnStartButton1Click(object sender, RoutedEventArgs e)
+        private void OnResetButtonClick(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("1 Player Start Button");
-            Globals.theRaceController.StartRace(1);
+            Debug.WriteLine("Reset Button");
+            Globals.theRaceController.ResetRace();
 
         }
 
-        private void OnStartButton2Click(object sender, RoutedEventArgs e)
+        private void OnStartButtonClick(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("2 Player Start Button");
-            Globals.theRaceController.StartRace(2);
+            Debug.WriteLine("Start Button");
+            Globals.theRaceController.StartRace(2, float.Parse(_MaxSpeed1Textbox.Text), float.Parse(_MaxSpeed2Textbox.Text));
         }
     }
 }

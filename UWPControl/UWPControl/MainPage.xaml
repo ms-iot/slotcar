@@ -13,7 +13,6 @@
             <TextBox x:Name="NetworkName" Margin="0" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" PlaceholderText="IP Address"/>
             <Button x:Name="Track1" Content="On Track 1" HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Top" Click="Track1_Click" Width="150"/>
             <Button x:Name="Track2" Content="On Track 2" HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Top" Click="Track2_Click" Width="150"/>
-            <Button x:Name="RoboTrack" Content="On against Cortana" HorizontalAlignment="Center" Margin="0,50,0,0" VerticalAlignment="Top" Click="RobotTrack_Click" Width="150"/>
         </StackPanel>
     </Grid>
 </Page>

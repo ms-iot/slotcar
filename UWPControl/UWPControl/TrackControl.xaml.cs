@@ -29,7 +29,6 @@ namespace UWPControl
     {
         Lane1,
         Lane2,
-        Lane1VsRobot
     };
 
     public class TrackControlInit
@@ -73,6 +72,7 @@ namespace UWPControl
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            TrackDisplay.Text = "Track " + (connectedToLane + 1);
             lastUpdated = DateTime.Now;
 
             var init = e.Parameter as TrackControlInit;

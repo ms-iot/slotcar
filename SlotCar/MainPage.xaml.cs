@@ -119,7 +119,7 @@ namespace SlotCar
 
                 track1NetworkInterface.speedUpdate += (speed) =>
                 {
-                    motorController.setSpeedA(speed);
+                    motorController.setSpeedA(speed * 0.2f / 255);
                 };
             }
             catch (Exception e)
@@ -136,7 +136,7 @@ namespace SlotCar
                 track2NetworkInterface.speedUpdate += (speed) =>
                 {
                     // negative because of how the track is wired
-                    motorController.setSpeedB(-speed);
+                    motorController.setSpeedB(-speed * 0.2f / 255);
                 };
             }
             catch (Exception e)

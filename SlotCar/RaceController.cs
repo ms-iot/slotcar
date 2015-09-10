@@ -7,7 +7,7 @@ namespace SlotCar
     {
         public const int NumberOfLaps = 5;
 
-        private int NumberOfPlayers = 2;
+        public int NumberOfAutoPlayers = 2;
         private float MaxSpeed1 = .0f;
         private float MaxSpeed2 = .0f;
         private RaceState raceState = RaceState.Waiting;
@@ -53,7 +53,7 @@ namespace SlotCar
                             if (raceState == RaceState.Waiting)
                             {
                                 raceState = value;
-                                Start(NumberOfPlayers, MaxSpeed1, MaxSpeed2);
+                                Start(NumberOfAutoPlayers, MaxSpeed1, MaxSpeed2);
                             }
                         }
                         break;
@@ -158,15 +158,10 @@ namespace SlotCar
             LapControllers[0] = new LapTimeController(NumberOfLaps);
             LapControllers[1] = new LapTimeController(NumberOfLaps);
 
-            NumberOfPlayers = numberOfPlayers;
+            NumberOfAutoPlayers = numberOfPlayers;
             MaxSpeed1 = maxSpeed1;
             MaxSpeed2 = maxSpeed2;
 
-            if (NumberOfPlayers == 1)
-            {
-                // Need a computer
-                //ComputerPlayer = new AutoRacer(Player.Lane2);
-            }
             // Start countdown
             // Enable controls
             State = RaceState.Running;
@@ -175,19 +170,12 @@ namespace SlotCar
         void Running()
         {
             Debug.WriteLine("RaceController::Running");
-            // Enable controls
-
-            /*if (ComputerPlayer != null)
-            {
-                ComputerPlayer.Go();
-            }
-            else*/
-            if(NumberOfPlayers == 2)
+            if(NumberOfAutoPlayers == 2)
             {
                 Debug.WriteLine("Lane1 Motor on");
                 Globals.theMainPage.motorController.setSpeedA(MaxSpeed1);
             }
-            if (NumberOfPlayers == 1)
+            if (NumberOfAutoPlayers > 0)
             {
                 Debug.WriteLine("Lane2 Motor on");
                 Globals.theMainPage.motorController.setSpeedB(MaxSpeed2);
@@ -256,7 +244,7 @@ namespace SlotCar
             // only allow starting a new race if we are currently waiting for a start.
             if (raceState == RaceState.Waiting)
             {
-                NumberOfPlayers = numberOfPlayers;
+                NumberOfAutoPlayers = numberOfPlayers;
                 MaxSpeed1 = maxSpeed1;
                 MaxSpeed2 = maxSpeed2;
                 State = RaceState.Starting;

@@ -119,7 +119,10 @@ namespace SlotCar
 
                 track1NetworkInterface.speedUpdate += (speed) =>
                 {
-                    motorController.setSpeedA(speed * 0.25f / 255);
+                    if (Globals.theRaceController.State != RaceState.Waiting && Globals.theRaceController.NumberOfAutoPlayers < 2)
+                    {
+                        motorController.setSpeedA(speed * 0.25f / 255);
+                    }
                 };
             }
             catch (Exception e)
@@ -135,8 +138,10 @@ namespace SlotCar
                 await track2NetworkInterface.StartServer();
                 track2NetworkInterface.speedUpdate += (speed) =>
                 {
-                    // negative because of how the track is wired
-                    motorController.setSpeedB(speed * 0.25f / 255);
+                    if (Globals.theRaceController.State != RaceState.Waiting && Globals.theRaceController.NumberOfAutoPlayers == 0)
+                    {
+                        motorController.setSpeedB(speed * 0.25f / 255);
+                    }
                 };
             }
             catch (Exception e)

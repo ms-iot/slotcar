@@ -9,9 +9,9 @@
 
     <Grid  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="200"/>
-                <RowDefinition Height="200"/>
-                <RowDefinition Height="200"/>
+            <RowDefinition Height="180"/>
+                <RowDefinition Height="180"/>
+                <RowDefinition Height="180"/>
                 <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -22,20 +22,20 @@
         </StackPanel>
 
         <Grid Grid.Row ="1">
-            <TextBlock Name="ForwardArrow" Text="t" VerticalAlignment="Center"  HorizontalAlignment="Left" FontFamily="Wingdings 3" FontSize="40" Margin="10,0,0,0"/>
-            <TextBlock Name="Forward" Text="Tilt to accelerate" VerticalAlignment="Center" HorizontalAlignment="Left" UseLayoutRounding="False" d:LayoutRounding="Auto" Margin="46,156.024,0,24.024" >
+            <TextBlock Name="ForwardArrow" Text="&lt;" VerticalAlignment="Center"  HorizontalAlignment="Left" FontSize="50" Margin="10,0,0,0"/>
+            <TextBlock Name="Forward" Text="Tilt to accelerate" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="37.2,150.824,0,9.224" UseLayoutRounding="False" d:LayoutRounding="Auto">
                 <TextBlock.RenderTransform>
                     <RotateTransform Angle="270"/>                       
                 </TextBlock.RenderTransform>
             </TextBlock>
-            <TextBlock Name="ReverseArrow" Text="u" VerticalAlignment="Center"  HorizontalAlignment="Right" FontFamily="Wingdings 3" FontSize="40" Margin="10,0,0,0"/>
-            <TextBlock Name="Reverse" Text="Tilt to stop" VerticalAlignment="Center" HorizontalAlignment="Right" UseLayoutRounding="False" d:LayoutRounding="Auto" Margin="0,135.024,-11,45.024" >
+            <TextBlock Name="ReverseArrow" Text="&gt;" VerticalAlignment="Center"  HorizontalAlignment="Right" FontSize="50" Margin="0,0,10,0"/>
+            <TextBlock Name="Reverse" Text="Tilt to stop" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,132.2,-11.2,27.8" UseLayoutRounding="False" d:LayoutRounding="Auto" >
                 <TextBlock.RenderTransform>
                     <RotateTransform Angle="270"/>
                 </TextBlock.RenderTransform>
             </TextBlock>
         </Grid>
 
-        <Button Grid.Row="2" x:Name="Done" Content="Done" HorizontalAlignment="Center" Margin="0,50,0,19" VerticalAlignment="Bottom" Click="Done_Click"/>
+        <Button Grid.Row="2" x:Name="Done" Content="Done" HorizontalAlignment="Center" Margin="0,50,0,50" VerticalAlignment="Bottom" Click="Done_Click"/>
     </Grid>
 </Page>

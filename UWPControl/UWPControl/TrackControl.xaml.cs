@@ -71,18 +71,15 @@ namespace UWPControl
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            TrackDisplay.Text = "Track " + (connectedToLane + 1);
+        {           
             lastUpdated = DateTime.Now;
-
             var init = e.Parameter as TrackControlInit;
+            TrackDisplay.Text = "Track " + ((int)init.lane + 1);
             if (init != null && !string.IsNullOrEmpty(init.computerName))
             {
                 connectedToLane = init.lane;
                 serverHost = new HostName(init.computerName);
-
             }
-
             Accelerometer accel = Accelerometer.GetDefault();
             accel.ReadingChanged += Accelerometer_ReadingChanged;
         }

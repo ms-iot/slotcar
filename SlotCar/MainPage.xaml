@@ -57,9 +57,9 @@
                         <RowDefinition Height="120"/>
                         <RowDefinition Height="120"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Start Button"  FontSize="35" VerticalAlignment="Center"/>
-                    <Button Grid.Row="0" Grid.Column="1" x:Name="_StartButton1" Content="1 Player" Width="100" Height="100" Click="OnStartButton1Click"/>
-                    <Button Grid.Row="0" Grid.Column="3" x:Name="_StartButton2" Content="2 Player" Width="100" Height="100" Click="OnStartButton2Click"/>
+             
+                    <Button Grid.Row="0" Grid.Column="1" x:Name="_StartButton" Content="Start" Width="100" Height="100" Click="OnStartButtonClick"/>
+                    <Button Grid.Row="0" Grid.Column="3" x:Name="_ResetButton" Content="Reset" Width="100" Height="100" Click="OnResetButtonClick"/>
 
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="Lane 1"  FontSize="35" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="3" Text="Lane 2"  FontSize="35" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -103,6 +103,17 @@
             </StackPanel>
             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                 <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
+                        <TextBlock Text="Device Name:"  FontSize="35" Margin="0,0,20,0"/>
+                        <TextBlock x:Name="_IpTextBlock" Text="" FontSize="35" Margin="0,0,20,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
+                        <TextBlock Text="Max Speed -"  FontSize="35" Margin="0,0,20,0"/>
+                        <TextBlock Text="Track 1:"  FontSize="35" Margin="0,0,20,0"/>
+                        <TextBox x:Name="_MaxSpeed1Textbox" Text="0" FontSize="30" Width="100" Margin="0,0,20,0"/>
+                        <TextBlock Text="Track 2:"  FontSize="35" Margin="0,0,20,0"/>
+                        <TextBox x:Name="_MaxSpeed2Textbox" Text="0" FontSize="30" Width="100"/>
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,30">
                         <TextBlock Text="Best lap of the day:" FontSize="35" Margin="0,0,20,0"/>
                         <TextBlock x:Name="_BestLapOfTheDay" Text="--:--.----" FontSize="35" />

@@ -8,6 +8,8 @@ namespace SlotCar
         public const int NumberOfLaps = 5;
 
         private int NumberOfPlayers = 2;
+        private float MaxSpeed1 = .0f;
+        private float MaxSpeed2 = .0f;
         private RaceState raceState = RaceState.Waiting;
 
         LapTimeController[] LapControllers = new LapTimeController[2];
@@ -51,7 +53,7 @@ namespace SlotCar
                             if (raceState == RaceState.Waiting)
                             {
                                 raceState = value;
-                                Start(NumberOfPlayers);
+                                Start(NumberOfPlayers, MaxSpeed1, MaxSpeed2);
                             }
                         }
                         break;
@@ -140,7 +142,7 @@ namespace SlotCar
 
         public Player Winner { get; private set; }
 
-        void Start(int numberOfPlayers)
+        void Start(int numberOfPlayers,float maxSpeed1, float maxSpeed2)
         {
             // TODO: 
             // Verify the cars are both on the Ready line
@@ -157,6 +159,9 @@ namespace SlotCar
             LapControllers[1] = new LapTimeController(NumberOfLaps);
 
             NumberOfPlayers = numberOfPlayers;
+            MaxSpeed1 = maxSpeed1;
+            MaxSpeed2 = maxSpeed2;
+
             if (NumberOfPlayers == 1)
             {
                 // Need a computer
@@ -179,11 +184,11 @@ namespace SlotCar
             else
             {
                 Debug.WriteLine("Lane1 Motor on");
-                Globals.theMainPage.motorController.setSpeedA(.35f);
+                Globals.theMainPage.motorController.setSpeedA(MaxSpeed1);
             }
 
             Debug.WriteLine("Lane2 Motor on");
-            Globals.theMainPage.motorController.setSpeedB(.35f);
+            Globals.theMainPage.motorController.setSpeedB(MaxSpeed2);
 
         }
 
@@ -243,17 +248,33 @@ namespace SlotCar
             }
         }
 
-        internal void StartRace(int numberOfPlayers)
+        internal void StartRace(int numberOfPlayers, float maxSpeed1, float maxSpeed2)
         {
-            Debug.WriteLine("StartRace: {0}", numberOfPlayers);
+            Debug.WriteLine("StartRace: {0} Speed1: {1} Speed2: {2}", numberOfPlayers, maxSpeed1, maxSpeed2);
             // only allow starting a new race if we are currently waiting for a start.
             if (raceState == RaceState.Waiting)
             {
                 NumberOfPlayers = numberOfPlayers;
+                MaxSpeed1 = maxSpeed1;
+                MaxSpeed2 = maxSpeed2;
                 State = RaceState.Starting;
             }
         }
 
+        internal void ResetRace()
+        {
+            Debug.WriteLine("Resetting race");
+
+            //Stop race
+            State = RaceState.Over;
+
+            // Zero out previous results
+            Globals.theMainPage.ClearWinner();
+
+            LapControllers = new LapTimeController[2];
+            LapControllers[0] = new LapTimeController(NumberOfLaps);
+            LapControllers[1] = new LapTimeController(NumberOfLaps);
+        }
         internal void UpdateCarPosition(Player whichPlayer, CarPosition whatPosition)
         {
             if (ComputerPlayer != null)

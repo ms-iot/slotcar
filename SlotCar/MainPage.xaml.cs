@@ -119,7 +119,7 @@ namespace SlotCar
 
                 track1NetworkInterface.speedUpdate += (speed) =>
                 {
-                    motorController.setSpeedA(speed * 0.2f / 255);
+                    motorController.setSpeedA(speed * 0.25f / 255);
                 };
             }
             catch (Exception e)
@@ -136,7 +136,7 @@ namespace SlotCar
                 track2NetworkInterface.speedUpdate += (speed) =>
                 {
                     // negative because of how the track is wired
-                    motorController.setSpeedB(-speed * 0.2f / 255);
+                    motorController.setSpeedB(speed * 0.25f / 255);
                 };
             }
             catch (Exception e)
@@ -342,11 +342,20 @@ namespace SlotCar
             Globals.theRaceController.ResetRace();
 
         }
-
-        private void OnStartButtonClick(object sender, RoutedEventArgs e)
+        private void OnAutoButtonClick(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("Start Button");
+            Debug.WriteLine("Auto Button");
             Globals.theRaceController.StartRace(2, float.Parse(_MaxSpeed1Textbox.Text), float.Parse(_MaxSpeed2Textbox.Text));
+        }
+        private void On1PlayerButtonClick(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("1 Player Button");
+            Globals.theRaceController.StartRace(1, .0f, float.Parse(_MaxSpeed2Textbox.Text));
+        }
+        private void On2PlayerButtonClick(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("2 Player Button");
+            Globals.theRaceController.StartRace(0, .0f, .0f);
         }
     }
 }

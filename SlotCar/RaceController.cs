@@ -165,7 +165,7 @@ namespace SlotCar
             if (NumberOfPlayers == 1)
             {
                 // Need a computer
-                ComputerPlayer = new AutoRacer(Player.Lane1);
+                //ComputerPlayer = new AutoRacer(Player.Lane2);
             }
             // Start countdown
             // Enable controls
@@ -177,19 +177,21 @@ namespace SlotCar
             Debug.WriteLine("RaceController::Running");
             // Enable controls
 
-            if (ComputerPlayer != null)
+            /*if (ComputerPlayer != null)
             {
                 ComputerPlayer.Go();
             }
-            else
+            else*/
+            if(NumberOfPlayers == 2)
             {
                 Debug.WriteLine("Lane1 Motor on");
                 Globals.theMainPage.motorController.setSpeedA(MaxSpeed1);
             }
-
-            Debug.WriteLine("Lane2 Motor on");
-            Globals.theMainPage.motorController.setSpeedB(MaxSpeed2);
-
+            if (NumberOfPlayers == 1)
+            {
+                Debug.WriteLine("Lane2 Motor on");
+                Globals.theMainPage.motorController.setSpeedB(MaxSpeed2);
+            }
         }
 
         void End()

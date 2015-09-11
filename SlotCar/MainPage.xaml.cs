@@ -26,12 +26,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Net;
+using System.Linq;
 using Windows.Devices.Gpio;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 using Windows.UI.Xaml;
+using Windows.Networking.Connectivity;
 
 namespace SlotCar
 {
@@ -116,7 +119,10 @@ namespace SlotCar
 
                 track1NetworkInterface.speedUpdate += (speed) =>
                 {
-                    motorController.setSpeedA(speed);
+                    if (Globals.theRaceController.State != RaceState.Waiting && Globals.theRaceController.NumberOfAutoPlayers < 2)
+                    {
+                        motorController.setSpeedA(speed * 0.25f / 255);
+                    }
                 };
             }
             catch (Exception e)
@@ -132,8 +138,10 @@ namespace SlotCar
                 await track2NetworkInterface.StartServer();
                 track2NetworkInterface.speedUpdate += (speed) =>
                 {
-                    // negative because of how the track is wired
-                    motorController.setSpeedB(-speed);
+                    if (Globals.theRaceController.State != RaceState.Waiting && Globals.theRaceController.NumberOfAutoPlayers == 0)
+                    {
+                        motorController.setSpeedB(speed * 0.25f / 255);
+                    }
                 };
             }
             catch (Exception e)
@@ -146,7 +154,20 @@ namespace SlotCar
             InitGPIO();
 
             InitUx();
-
+            var icp = NetworkInformation.GetInternetConnectionProfile();
+            if (icp != null && icp.NetworkAdapter != null)
+            {
+                var hostname = NetworkInformation.GetHostNames().FirstOrDefault(
+                                hn =>
+                                hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
+                                && hn.IPInformation.NetworkAdapter.NetworkAdapterId
+                                == icp.NetworkAdapter.NetworkAdapterId && hn.Type == Windows.Networking.HostNameType.Ipv4);
+                
+                 if (null != hostname)
+                 {
+                    _IpTextBlock.Text = hostname.CanonicalName.ToString();
+                }
+            }
             timer = new Timer(timerCallback, this, 0, 100);
         }
 
@@ -320,17 +341,26 @@ namespace SlotCar
         private SolidColorBrush redBrush = new SolidColorBrush(Windows.UI.Colors.Red);
         private SolidColorBrush grayBrush = new SolidColorBrush(Windows.UI.Colors.LightGray);
 
-        private void OnStartButton1Click(object sender, RoutedEventArgs e)
+        private void OnResetButtonClick(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("1 Player Start Button");
-            Globals.theRaceController.StartRace(1);
+            Debug.WriteLine("Reset Button");
+            Globals.theRaceController.ResetRace();
 
         }
-
-        private void OnStartButton2Click(object sender, RoutedEventArgs e)
+        private void OnAutoButtonClick(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("2 Player Start Button");
-            Globals.theRaceController.StartRace(2);
+            Debug.WriteLine("Auto Button");
+            Globals.theRaceController.StartRace(2, float.Parse(_MaxSpeed1Textbox.Text), float.Parse(_MaxSpeed2Textbox.Text));
+        }
+        private void On1PlayerButtonClick(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("1 Player Button");
+            Globals.theRaceController.StartRace(1, .0f, float.Parse(_MaxSpeed2Textbox.Text));
+        }
+        private void On2PlayerButtonClick(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("2 Player Button");
+            Globals.theRaceController.StartRace(0, .0f, .0f);
         }
     }
 }

@@ -5,24 +5,37 @@
     xmlns:local="using:UWPControl"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
-
+    mc:Ignorable="d" RequestedTheme="Dark">
 
     <Grid  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="180"/>
+                <RowDefinition Height="180"/>
+                <RowDefinition Height="180"/>
+                <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
 
         <!-- Title Panel -->
         <StackPanel Grid.Row="0" Margin="19,19,19,0">
             <TextBlock Name="TrackDisplay" Text="Track"/>
         </StackPanel>
 
-        <Grid Grid.Row="1" x:Name="ContentRoot">
-            <!-- winrtt:Gauge Name="Speed" Width="250" Height="250" Minimum="0" Maximum="100"/ -->
+        <Grid Grid.Row ="1">
+            <TextBlock Name="ForwardArrow" Text="&lt;" VerticalAlignment="Center"  HorizontalAlignment="Left" FontSize="50" Margin="10,0,0,0"/>
+            <TextBlock Name="Forward" Text="Tilt to accelerate" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="37.2,150.824,0,9.224" UseLayoutRounding="False" d:LayoutRounding="Auto">
+                <TextBlock.RenderTransform>
+                    <RotateTransform Angle="270"/>                       
+                </TextBlock.RenderTransform>
+            </TextBlock>
+            <TextBlock Name="ReverseArrow" Text="&gt;" VerticalAlignment="Center"  HorizontalAlignment="Right" FontSize="50" Margin="0,0,10,0"/>
+            <TextBlock Name="Reverse" Text="Tilt to stop" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,132.2,-11.2,27.8" UseLayoutRounding="False" d:LayoutRounding="Auto" >
+                <TextBlock.RenderTransform>
+                    <RotateTransform Angle="270"/>
+                </TextBlock.RenderTransform>
+            </TextBlock>
         </Grid>
-        
-        <Button Grid.Row="2" x:Name="Done" Content="Done" HorizontalAlignment="Center" Margin="0,50,0,19" VerticalAlignment="Bottom" Click="Done_Click"/>
+
+        <Button Grid.Row="2" x:Name="Done" Content="Done" HorizontalAlignment="Center" Margin="0,50,0,50" VerticalAlignment="Bottom" Click="Done_Click"/>
     </Grid>
 </Page>

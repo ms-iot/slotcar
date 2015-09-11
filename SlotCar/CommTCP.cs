@@ -67,9 +67,10 @@ namespace SlotCar
                     throw (new Exception("Nothing sent"));
                 }
 
-                JsonValue jsonValue = JsonValue.Parse(requestFull.ToString());
 
-                speedUpdate((float)jsonValue.GetObject().GetNamedNumber("PWM"));
+                float speed = float.Parse(requestFull.ToString().Split('"')[3]);
+
+                speedUpdate(speed);
             }
             catch (Exception e)
             {

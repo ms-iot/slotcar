@@ -35,12 +35,7 @@ namespace UWPControl
         private void Track2_Click(object sender, RoutedEventArgs e)
         {
             TrackControlInit init = new TrackControlInit { lane = TrackLane.Lane2, computerName = NetworkName.Text };
-            this.Frame.Navigate(typeof(TrackControl), TrackLane.Lane2);
-        }
-        private void RobotTrack_Click(object sender, RoutedEventArgs e)
-        {
-            TrackControlInit init = new TrackControlInit { lane = TrackLane.Lane1VsRobot, computerName = NetworkName.Text };
-            this.Frame.Navigate(typeof(TrackControl), TrackLane.Lane1VsRobot);
+            this.Frame.Navigate(typeof(TrackControl), init);
         }
     }
 }

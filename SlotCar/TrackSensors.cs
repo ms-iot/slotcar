@@ -149,7 +149,7 @@ namespace SlotCar
                         {
                             Debug.WriteLine("Start Line Lane 1");
                             UpdateLap(eventArgs, pinValue, Player.Lane1);
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Start);
+                            Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Start);
                         }
                         break;
 

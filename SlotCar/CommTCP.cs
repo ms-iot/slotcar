@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Text;
+using Windows.Networking;
 using Windows.Networking.Sockets;
-using Windows.Storage.Streams;
-using System.Diagnostics;
-using Windows.System.Threading;
+using System.Threading.Tasks;
 
 namespace SlotCar
 {
     class CommTCP
     {
-        private const uint bufLen = 15;
+        private const uint bufLen = 8192;
         private string listingOnPort;
-        private readonly StreamSocketListener sock = null;
-        private DataReader reader;
-        private StreamSocket socket;
-        private ThreadPoolTimer timer;
+        private readonly DatagramSocket socket = null;
 
         public delegate void TrackSpeedUpdate(float speed);
 
@@ -35,39 +31,20 @@ namespace SlotCar
 
         internal CommTCP(string port)
         {
-            sock = new StreamSocketListener();
-            sock.Control.KeepAlive = true;
             listingOnPort = port;
-            sock.ConnectionReceived += (s, e) => ProcessRequestAsync(e.Socket);
+            socket = new DatagramSocket();
+            socket.MessageReceived += Receive;           
         }
 
         internal async Task StartServer()
         {
-            await sock.BindServiceNameAsync(listingOnPort);
-        }
-        private void ProcessRequestAsync(StreamSocket streamsocket)
-        {
-            socket = streamsocket;
-            reader = new DataReader(socket.InputStream);
-            reader.InputStreamOptions = InputStreamOptions.ReadAhead;
-            timer = ThreadPoolTimer.CreatePeriodicTimer(read, TimeSpan.FromMilliseconds(50));
+            await socket.BindEndpointAsync(new HostName("localhost"), listingOnPort);
         }
 
-        public async void read(ThreadPoolTimer t)
+        private void Receive(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
         {
-            timer.Cancel();
-            await reader.LoadAsync(30);         
-            string block = reader.ReadString(reader.UnconsumedBufferLength);
-            int reverseIndex = block.LastIndexOf('}');
-            int index = block.LastIndexOf('{', reverseIndex);
-            if (reverseIndex >= 14 && index >= 0)
-            {
-                string pwm = block.Substring(index);
-                Debug.WriteLine(pwm);
-                float speed = float.Parse(pwm.Split('"')[3]);
-                speedUpdate(speed);
-            }
-            timer = ThreadPoolTimer.CreatePeriodicTimer(read, TimeSpan.FromMilliseconds(50));
+            float speed = float.Parse(args.ToString().Split('"')[3]);
+            speedUpdate(speed);
         }
     }
 }

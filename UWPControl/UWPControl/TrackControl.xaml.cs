@@ -36,8 +36,8 @@ namespace UWPControl
         private const long trackUpdateIntervalMs = 25;
 
         private Accelerometer accelerometer = Accelerometer.GetDefault();
-        private DataWriter tcpPipe;
-        private StreamSocket clientSocket = new StreamSocket();
+        private DatagramSocket udpSocket = new DatagramSocket();
+        private DataWriter udpPipe;
         private ThreadPoolTimer readTimer;
 
         public TrackControl()
@@ -61,16 +61,16 @@ namespace UWPControl
                 {
                     gamePort = gamePort2;
                 }
-                await clientSocket.ConnectAsync(serverHost, gamePort);
-                tcpPipe = new DataWriter(clientSocket.OutputStream);
+                await udpSocket.ConnectAsync(serverHost, gamePort);
+                udpPipe = new DataWriter(udpSocket.OutputStream);
             }
             readTimer = ThreadPoolTimer.CreatePeriodicTimer(ReadAccelerometer, TimeSpan.FromMilliseconds(trackUpdateIntervalMs));
     }
 
         async protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            await clientSocket.CancelIOAsync();
-            tcpPipe.Dispose();
+            await udpSocket.CancelIOAsync();
+            udpPipe.Dispose();
             readTimer.Cancel();
         }
 
@@ -91,9 +91,9 @@ namespace UWPControl
             {
                 string s = "{\"PWM\": \"" + pwm.ToString("0") + "\"}\n";
 
-                tcpPipe.WriteString(s);
-                await tcpPipe.StoreAsync();
-                await tcpPipe.FlushAsync();
+                udpPipe.WriteString(s);
+                await udpPipe.StoreAsync();
+                await udpPipe.FlushAsync();
             }
             catch (Exception e)
             {

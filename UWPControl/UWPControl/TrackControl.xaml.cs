@@ -1,25 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-
-using Windows.Networking;
-using Windows.Networking.Sockets;
-using System.Threading.Tasks;
-using Windows.Storage.Streams;
 using System.Diagnostics;
 using Windows.Devices.Sensors;
+using Windows.Networking;
+using Windows.Networking.Sockets;
+using Windows.Storage.Streams;
+using Windows.System.Threading;
 using Windows.UI.Core;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -42,64 +31,53 @@ namespace UWPControl
     /// </summary>
     public sealed partial class TrackControl : Page
     {
-        HostName serverHost;
+        private const string gamePort1 = "25666";
+        private const string gamePort2 = "25667";
+        private const long trackUpdateIntervalMs = 25;
 
-        const string gamePort1 = "25666";
-        const string gamePort2 = "25667";
-
-        const long TrackUpdateInterval = 100;   // Update Interval in Milliseconds
-        bool processing = false;
-
-        private TrackLane connectedToLane;
-        DateTime lastUpdated;
-
-        private string portToUse()
-        {
-            string port = gamePort2;
-            if (connectedToLane == TrackLane.Lane1)
-            {
-                port = gamePort1;
-            }
-
-            return port;
-
-        }
+        private Accelerometer accelerometer = Accelerometer.GetDefault();
+        private DataWriter tcpPipe;
+        private StreamSocket clientSocket = new StreamSocket();
+        private ThreadPoolTimer readTimer;
 
         public TrackControl()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        async protected override void OnNavigatedTo(NavigationEventArgs e)
         {           
-            lastUpdated = DateTime.Now;
             var init = e.Parameter as TrackControlInit;
             TrackDisplay.Text = "Track " + ((int)init.lane + 1);
             if (init != null && !string.IsNullOrEmpty(init.computerName))
             {
-                connectedToLane = init.lane;
-                serverHost = new HostName(init.computerName);
+                HostName serverHost = new HostName(init.computerName);
+                string gamePort;
+                if ( TrackLane.Lane1 == init.lane )
+                {
+                    gamePort = gamePort1;
+                }
+                else
+                {
+                    gamePort = gamePort2;
+                }
+                await clientSocket.ConnectAsync(serverHost, gamePort);
+                tcpPipe = new DataWriter(clientSocket.OutputStream);
             }
-            Accelerometer accel = Accelerometer.GetDefault();
-            accel.ReadingChanged += Accelerometer_ReadingChanged;
+            readTimer = ThreadPoolTimer.CreatePeriodicTimer(ReadAccelerometer, TimeSpan.FromMilliseconds(trackUpdateIntervalMs));
+    }
+
+        async protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            await clientSocket.CancelIOAsync();
+            tcpPipe.Dispose();
+            readTimer.Cancel();
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        private async void ReadAccelerometer(ThreadPoolTimer timer)
         {
-            Accelerometer.GetDefault().ReadingChanged -= Accelerometer_ReadingChanged;
-        }
-
-        private async void Accelerometer_ReadingChanged(Accelerometer sender, AccelerometerReadingChangedEventArgs args)
-        {
-            if (DateTime.Now.Subtract(lastUpdated).Milliseconds < TrackUpdateInterval || processing)
-            {
-                return;
-            }
-
-            lastUpdated = DateTime.Now;
-            processing = true;
-
-            double speed = (1.0 - args.Reading.AccelerationX);
+            readTimer.Cancel();
+            double speed = (1.0 - accelerometer.GetCurrentReading().AccelerationX);
             var i = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 // TODO: Add visualization
@@ -113,30 +91,20 @@ namespace UWPControl
             {
                 string s = "{\"PWM\": \"" + pwm.ToString("0") + "\"}\n";
 
-                using (StreamSocket clientSocket = new StreamSocket())
-                {
-                    DataWriter writer = null;
-                    await clientSocket.ConnectAsync(serverHost, portToUse());
-                    using (writer = new DataWriter(clientSocket.OutputStream))
-                    {
-
-                        uint len = writer.WriteString(s);
-                        await writer.StoreAsync();
-                        await writer.FlushAsync();
-                    }
-                }
+                tcpPipe.WriteString(s);
+                await tcpPipe.StoreAsync();
+                await tcpPipe.FlushAsync();
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e);
             }
-
-            processing = false;
+            readTimer = ThreadPoolTimer.CreatePeriodicTimer(ReadAccelerometer, TimeSpan.FromMilliseconds(trackUpdateIntervalMs));
         }
 
         private void Done_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(MainPage));
+            Frame.Navigate(typeof(MainPage));
         }
     }
 }

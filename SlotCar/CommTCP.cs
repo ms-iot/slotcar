@@ -46,7 +46,7 @@ namespace SlotCar
             uint length = args.GetDataReader().UnconsumedBufferLength;
             string pwm = args.GetDataReader().ReadString(length);
             Debug.WriteLine(pwm);
-            float speed = float.Parse(args.ToString().Split('"')[3]);
+            float speed = float.Parse(pwm.Split('"')[3]);
             speedUpdate(speed);
         }
     }

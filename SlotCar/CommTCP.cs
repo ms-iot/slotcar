@@ -1,19 +1,20 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using System.Diagnostics;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Data.Json;
+using Windows.System.Threading;
 
 namespace SlotCar
 {
     class CommTCP
     {
-        private const uint bufLen = 8192;
+        private const uint bufLen = 15;
         private string listingOnPort;
         private readonly StreamSocketListener sock = null;
+        private DataReader reader;
+        private StreamSocket socket;
+        private ThreadPoolTimer timer;
 
         public delegate void TrackSpeedUpdate(float speed);
 
@@ -37,47 +38,36 @@ namespace SlotCar
             sock = new StreamSocketListener();
             sock.Control.KeepAlive = true;
             listingOnPort = port;
-            sock.ConnectionReceived += async (s, e) => await ProcessRequestAsync(e.Socket);
+            sock.ConnectionReceived += (s, e) => ProcessRequestAsync(e.Socket);
         }
 
         internal async Task StartServer()
         {
             await sock.BindServiceNameAsync(listingOnPort);
         }
-        private async Task ProcessRequestAsync(StreamSocket socket)
+        private void ProcessRequestAsync(StreamSocket streamsocket)
         {
-            try
+            socket = streamsocket;
+            reader = new DataReader(socket.InputStream);
+            reader.InputStreamOptions = InputStreamOptions.ReadAhead;
+            timer = ThreadPoolTimer.CreatePeriodicTimer(read, TimeSpan.FromMilliseconds(125));
+        }
+
+        public async void read(ThreadPoolTimer t)
+        {
+            timer.Cancel();
+            await reader.LoadAsync(bufLen);
+            char[] buffer = new char[15];
+            char c = 'x';
+            for (int i = 0; c != '\n'; ++i)
             {
-                StringBuilder requestFull = new StringBuilder(string.Empty);
-                using (IInputStream input = socket.InputStream)
-                {
-                    byte[] data = new byte[bufLen];
-                    IBuffer buffer = data.AsBuffer();
-                    uint dataRead = bufLen;
-                    while (dataRead == bufLen)
-                    {
-                        await input.ReadAsync(buffer, bufLen, InputStreamOptions.Partial);
-                        requestFull.Append(Encoding.UTF8.GetString(data, 0, data.Length));
-                        dataRead = buffer.Length;
-                    }
-                }
-
-                if (requestFull.Length == 0)
-                {
-                    throw (new Exception("Nothing sent"));
-                }
-
-
-                float speed = float.Parse(requestFull.ToString().Split('"')[3]);
-
-                speedUpdate(speed);
+                c = (char)reader.ReadByte();
+                buffer[i] = c;
             }
-            catch (Exception e)
-            {
-                // Server can force shutdown which generates an exception. Spew it.
-                Debug.WriteLine(e.Message);
-                Debug.WriteLine(e.StackTrace);
-            }
+            Debug.WriteLine(buffer.ToString());
+            float speed = float.Parse(buffer.ToString().Split('"')[3]);
+            speedUpdate(speed);
+            timer = ThreadPoolTimer.CreatePeriodicTimer(read, TimeSpan.FromMilliseconds(125));
         }
     }
 }

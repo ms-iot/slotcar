@@ -50,24 +50,23 @@ namespace SlotCar
             socket = streamsocket;
             reader = new DataReader(socket.InputStream);
             reader.InputStreamOptions = InputStreamOptions.ReadAhead;
-            timer = ThreadPoolTimer.CreatePeriodicTimer(read, TimeSpan.FromMilliseconds(90));
+            timer = ThreadPoolTimer.CreatePeriodicTimer(read, TimeSpan.FromMilliseconds(50));
         }
 
         public async void read(ThreadPoolTimer t)
         {
             timer.Cancel();
-            await reader.LoadAsync(bufLen);
-            char[] buffer = new char[bufLen];
-            char c = 'x';
-            for (int i = 0; c != '\n'; ++i)
+            await reader.LoadAsync(30);         
+            string block = reader.ReadString(reader.UnconsumedBufferLength);
+            int reverseIndex = block.LastIndexOf('}');
+            int index = block.LastIndexOf('{', reverseIndex);
+            if (reverseIndex >= 14 && index >= 0)
             {
-                c = (char)reader.ReadByte();
-                buffer[i] = c;
+                string pwm = block.Substring(index);
+                Debug.WriteLine(pwm);
+                float speed = float.Parse(pwm.Split('"')[3]);
+                speedUpdate(speed);
             }
-            string pwm = new string(buffer);
-            Debug.WriteLine(pwm);
-            float speed = float.Parse(pwm.Split('"')[3]);
-            speedUpdate(speed);
             timer = ThreadPoolTimer.CreatePeriodicTimer(read, TimeSpan.FromMilliseconds(50));
         }
     }

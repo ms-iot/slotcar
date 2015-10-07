@@ -33,7 +33,7 @@ namespace UWPControl
     {
         private const string gamePort1 = "25666";
         private const string gamePort2 = "25667";
-        private const long trackUpdateIntervalMs = 25;
+        private const long trackUpdateIntervalMs = 100;
 
         private Accelerometer accelerometer = Accelerometer.GetDefault();
         private DatagramSocket udpSocket = new DatagramSocket();
@@ -62,7 +62,8 @@ namespace UWPControl
                     gamePort = gamePort2;
                 }
                 await udpSocket.ConnectAsync(serverHost, gamePort);
-                udpPipe = new DataWriter(udpSocket.OutputStream);
+                var outputStream = await udpSocket.GetOutputStreamAsync(serverHost, gamePort);
+                udpPipe = new DataWriter(outputStream);
             }
             readTimer = ThreadPoolTimer.CreatePeriodicTimer(ReadAccelerometer, TimeSpan.FromMilliseconds(trackUpdateIntervalMs));
     }

@@ -100,6 +100,20 @@ namespace SlotCar
 
         protected override async void OnNavigatedTo(NavigationEventArgs navArgs)
         {
+            var icp = NetworkInformation.GetInternetConnectionProfile();
+            if (icp != null && icp.NetworkAdapter != null)
+            {
+                var hostname = NetworkInformation.GetHostNames().FirstOrDefault(
+                                hn =>
+                                hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
+                                && hn.IPInformation.NetworkAdapter.NetworkAdapterId
+                                == icp.NetworkAdapter.NetworkAdapterId && hn.Type == Windows.Networking.HostNameType.Ipv4);
+
+                if (null != hostname)
+                {
+                    _IpTextBlock.Text = hostname.CanonicalName.ToString();
+                }
+            }
 
             try
             {
@@ -115,7 +129,7 @@ namespace SlotCar
             try
             {
                 track1NetworkInterface = new CommTCP(gamePort1);
-                await track1NetworkInterface.StartServer();
+                await track1NetworkInterface.StartServer(_IpTextBlock.Text);
 
                 track1NetworkInterface.speedUpdate += (speed) =>
                 {
@@ -135,7 +149,7 @@ namespace SlotCar
             try
             {
                 track2NetworkInterface = new CommTCP(gamePort2);
-                await track2NetworkInterface.StartServer();
+                await track2NetworkInterface.StartServer(_IpTextBlock.Text);
                 track2NetworkInterface.speedUpdate += (speed) =>
                 {
                     if (Globals.theRaceController.State == RaceState.Running && Globals.theRaceController.NumberOfAutoPlayers == 0)
@@ -152,22 +166,7 @@ namespace SlotCar
             }
 
             InitGPIO();
-
             InitUx();
-            var icp = NetworkInformation.GetInternetConnectionProfile();
-            if (icp != null && icp.NetworkAdapter != null)
-            {
-                var hostname = NetworkInformation.GetHostNames().FirstOrDefault(
-                                hn =>
-                                hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
-                                && hn.IPInformation.NetworkAdapter.NetworkAdapterId
-                                == icp.NetworkAdapter.NetworkAdapterId && hn.Type == Windows.Networking.HostNameType.Ipv4);
-                
-                 if (null != hostname)
-                 {
-                    _IpTextBlock.Text = hostname.CanonicalName.ToString();
-                }
-            }
             timer = new Timer(timerCallback, this, 0, 100);
         }
 

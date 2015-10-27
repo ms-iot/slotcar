@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Networking.Sockets;
-using Windows.Storage.Streams;
+using Windows.Networking;
 using System.Diagnostics;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Data.Json;
+using Windows.Networking.Sockets;
+using System.Threading.Tasks;
 
 namespace SlotCar
 {
@@ -13,7 +10,7 @@ namespace SlotCar
     {
         private const uint bufLen = 8192;
         private string listingOnPort;
-        private readonly StreamSocketListener sock = null;
+        private readonly DatagramSocket socket = null;
 
         public delegate void TrackSpeedUpdate(float speed);
 
@@ -34,50 +31,23 @@ namespace SlotCar
 
         internal CommTCP(string port)
         {
-            sock = new StreamSocketListener();
-            sock.Control.KeepAlive = true;
             listingOnPort = port;
-            sock.ConnectionReceived += async (s, e) => await ProcessRequestAsync(e.Socket);
+            socket = new DatagramSocket();
+            socket.MessageReceived += Receive;           
         }
 
-        internal async Task StartServer()
+        internal async Task StartServer(string ip)
         {
-            await sock.BindServiceNameAsync(listingOnPort);
+            await socket.BindEndpointAsync(new HostName(ip), listingOnPort);
         }
-        private async Task ProcessRequestAsync(StreamSocket socket)
+
+        private void Receive(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
         {
-            try
-            {
-                StringBuilder requestFull = new StringBuilder(string.Empty);
-                using (IInputStream input = socket.InputStream)
-                {
-                    byte[] data = new byte[bufLen];
-                    IBuffer buffer = data.AsBuffer();
-                    uint dataRead = bufLen;
-                    while (dataRead == bufLen)
-                    {
-                        await input.ReadAsync(buffer, bufLen, InputStreamOptions.Partial);
-                        requestFull.Append(Encoding.UTF8.GetString(data, 0, data.Length));
-                        dataRead = buffer.Length;
-                    }
-                }
-
-                if (requestFull.Length == 0)
-                {
-                    throw (new Exception("Nothing sent"));
-                }
-
-
-                float speed = float.Parse(requestFull.ToString().Split('"')[3]);
-
-                speedUpdate(speed);
-            }
-            catch (Exception e)
-            {
-                // Server can force shutdown which generates an exception. Spew it.
-                Debug.WriteLine(e.Message);
-                Debug.WriteLine(e.StackTrace);
-            }
+            uint length = args.GetDataReader().UnconsumedBufferLength;
+            string pwm = args.GetDataReader().ReadString(length);
+            Debug.WriteLine(pwm);
+            float speed = float.Parse(pwm.Split('"')[3]);
+            speedUpdate(speed);
         }
     }
 }

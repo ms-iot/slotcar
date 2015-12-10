@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using System.Net;
 using System.Linq;
 using Windows.Devices.Gpio;
 using Windows.UI.Xaml.Controls;
@@ -83,8 +82,8 @@ namespace SlotCar
         const string gamePort2 = "25667";
 
         public MotorController motorController = new MotorController();
-        CommTCP track1NetworkInterface;
-        CommTCP track2NetworkInterface;
+        CommUDP track1NetworkInterface;
+        CommUDP track2NetworkInterface;
 
 
         public Timer timer;
@@ -128,7 +127,7 @@ namespace SlotCar
 
             try
             {
-                track1NetworkInterface = new CommTCP(gamePort1);
+                track1NetworkInterface = new CommUDP(gamePort1);
                 await track1NetworkInterface.StartServer(_IpTextBlock.Text);
 
                 track1NetworkInterface.speedUpdate += (speed) =>
@@ -148,7 +147,7 @@ namespace SlotCar
 
             try
             {
-                track2NetworkInterface = new CommTCP(gamePort2);
+                track2NetworkInterface = new CommUDP(gamePort2);
                 await track2NetworkInterface.StartServer(_IpTextBlock.Text);
                 track2NetworkInterface.speedUpdate += (speed) =>
                 {

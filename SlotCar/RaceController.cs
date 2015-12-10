@@ -13,7 +13,6 @@ namespace SlotCar
         private RaceState raceState = RaceState.Waiting;
 
         LapTimeController[] LapControllers = new LapTimeController[2];
-        private AutoRacer ComputerPlayer = null;
 
         TimeSpan BestLapTime = TimeSpan.MaxValue;
 
@@ -144,11 +143,6 @@ namespace SlotCar
 
         void Start(int numberOfPlayers,float maxSpeed1, float maxSpeed2)
         {
-            // TODO: 
-            // Verify the cars are both on the Ready line
-            // Do a start countdown on screen
-            // Transfer control of the cars to the phone(s) depending on number of players.
-
             Debug.WriteLine("RaceController::Start");
 
             Globals.theMainPage.ClearWinner();
@@ -162,8 +156,6 @@ namespace SlotCar
             MaxSpeed1 = maxSpeed1;
             MaxSpeed2 = maxSpeed2;
 
-            // Start countdown
-            // Enable controls
             State = RaceState.Running;
         }
 
@@ -185,11 +177,6 @@ namespace SlotCar
         void End()
         {
             Debug.WriteLine("RaceController::End");
-
-            // done with the computer
-            ComputerPlayer = null;
-
-            // Disable controls
 
             // Turn off motors (do this after getting rid of the computer player so if it coasts over a sensor it doesn't overide the speed.
             Debug.WriteLine("Lane1 Motor off");
@@ -264,13 +251,6 @@ namespace SlotCar
             LapControllers = new LapTimeController[2];
             LapControllers[0] = new LapTimeController(NumberOfLaps);
             LapControllers[1] = new LapTimeController(NumberOfLaps);
-        }
-        internal void UpdateCarPosition(Player whichPlayer, CarPosition whatPosition)
-        {
-            if (ComputerPlayer != null)
-            {
-                ComputerPlayer.UpdatePosition(whatPosition);
-            }
         }
     }
 }

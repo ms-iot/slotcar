@@ -149,7 +149,6 @@ namespace SlotCar
                         {
                             Debug.WriteLine("Start Line Lane 1");
                             UpdateLap(eventArgs, pinValue, Player.Lane1);
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Start);
                         }
                         break;
 
@@ -157,16 +156,13 @@ namespace SlotCar
                         {
                             Debug.WriteLine("Start Line Lane 2");
                             UpdateLap(eventArgs, pinValue, Player.Lane2);
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Start);
                         }
                         break;
 
                     case ReadyLineLane1_GPIO:
                         {
                             Debug.WriteLine("Ready Line Lane 1");
-
                             UpdateLap(eventArgs, pinValue, Player.Lane1);
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Start);
                         }
                         break;
 
@@ -175,35 +171,30 @@ namespace SlotCar
                             Debug.WriteLine("Ready Line Lane 2");
 
                             UpdateLap(eventArgs, pinValue, Player.Lane2);
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Start);
                         }
                         break;
 
                     case Turn1EnterLane1_GPIO:
                         {
                             Debug.WriteLine("Turn 1 Enter Lane 1");
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Turn1);
                         }
                         break;
 
                     case Turn1EnterLane2_GPIO:
                         {
                             Debug.WriteLine("Turn 1 Enter Lane 2");
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Turn1);
                         }
                         break;
 
                     case Turn1ExitLane1_GPIO:
                         {
                             Debug.WriteLine("Turn 1 Exit Lane 1");
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Straight1);
                         }
                         break;
 
                     case Turn1ExitLane2_GPIO:
                         {
                             Debug.WriteLine("Turn 1 Exit Lane 2");
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Straight1);
                         }
                         break;
 
@@ -211,28 +202,24 @@ namespace SlotCar
                     case Turn2EnterLane1_GPIO:
                         {
                             Debug.WriteLine("Turn 2 Enter Lane 1");
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Turn2);
                         }
                         break;
 
                     case Turn2EnterLane2_GPIO:
                         {
                             Debug.WriteLine("Turn 2 Enter Lane 2");
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Turn2);
                         }
                         break;
 
                     case Turn2ExitLane1_GPIO:
                         {
                             Debug.WriteLine("Turn 2 Exit Lane 1");
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane1, CarPosition.Straight2);
                         }
                         break;
 
                     case Turn2ExitLane2_GPIO:
                         {
                             Debug.WriteLine("Turn 2 Exit Lane 2");
-                            Globals.theRaceController.UpdateCarPosition(Player.Lane2, CarPosition.Straight2);
                         }
                         break;
                 }

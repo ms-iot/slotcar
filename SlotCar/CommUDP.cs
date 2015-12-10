@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SlotCar
 {
-    class CommTCP
+    class CommUDP
     {
         private const uint bufLen = 8192;
         private string listingOnPort;
@@ -29,7 +29,7 @@ namespace SlotCar
         }
 
 
-        internal CommTCP(string port)
+        internal CommUDP(string port)
         {
             listingOnPort = port;
             socket = new DatagramSocket();

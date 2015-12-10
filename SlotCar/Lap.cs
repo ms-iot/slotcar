@@ -30,7 +30,6 @@ namespace SlotCar
             }
         }
 
-
         public bool Update()
         {
             bool lapDone = false;
@@ -51,7 +50,6 @@ namespace SlotCar
                     lapDone = true;
                 }
             }
-
             return lapDone;
         }
     }

@@ -28,15 +28,9 @@ namespace SlotCar
         const byte Stepernu         = 0x1c;
 
         const byte I2CMotorDriverAdd = 0x0f;
-
         const string I2CControllerName = "I2C1";
 
         private I2cDevice motorController = null;
-
-        public MotorController()
-        {
-
-        }
 
         public async Task initialize()
         {
@@ -67,42 +61,9 @@ namespace SlotCar
                     dir = 0x01;
                     percent = Math.Abs(percent);
                 }
-                /*
-                if (inst == MotorInstance.A)
-                {
-                    dir <<= 2;
-                    direction = (byte)((direction & 0x3) | dir);
-                }
-                else
-                {
-                    direction = (byte)((direction & 0xC) | dir);
-                }
-
-                byte[] dirBuffer = new byte[] { DirectionSet, direction, Nothing };
-
-                motorController.Write(dirBuffer);
-                */
                 byte speed = (byte)Math.Floor(percent * 255);
 
                 byte[] setSpeedBuffer = new byte[] { (inst == MotorInstance.A)?MotorSetA : MotorSetB, dir, speed };
-
-                motorController.Write(setSpeedBuffer);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Exception: " + e.Message + "\n" + e.StackTrace);
-                throw;
-            }
-        }
-
-        public void setSpeedAB(float percentA, float percentB)
-        {
-            try
-            {
-                byte speedA = (byte)Math.Floor(percentA * 255);
-                byte speedB = (byte)Math.Floor(percentB * 255);
-
-                byte[] setSpeedBuffer = new byte[] { MotorSpeedSet, speedA, speedB };
 
                 motorController.Write(setSpeedBuffer);
             }
@@ -122,7 +83,5 @@ namespace SlotCar
         {
             setSpeedCommon(MotorInstance.B, percent);
         }
-
-
     }
 }

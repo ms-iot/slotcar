@@ -99,8 +99,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AutoRacer.cs" />
-    <Compile Include="CommTCP.cs" />
+    <Compile Include="CommUDP.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Lap.cs" />
     <Compile Include="LapTimeController.cs" />
